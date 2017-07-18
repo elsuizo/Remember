@@ -1,0 +1,140 @@
+* Cosas para recordar de Rust
+
+ - la palabra reservada ~let~ se utiliza para generar un *binding* que puede
+   ser declarar una variable o para otros casos. Se dice que el lado derecho
+   de ~let~ es un patron y no un nombre de variable
+
+ - Para anotar types se usa *colon*: ~let x: i32 = 5;~
+ - Por default los *bindings* son *inmutables*!!!
+ - Las *bindings* tienen que ser inicializados
+ - Los bloques de codigo {} generan un ambiente de acceso para las veriables,
+   osea que no se puede acceder desde afuera a los valores de una variable
+   que esta dentro de un bloque de codigo. Se puede *oscurecer*(no se si es
+   la traduccion correcta de *shadowed*) dentro de un bloque, ejemplo:
+#+BEGIN_SRC rust
+let x: i32 = 8;
+{
+    println!("{}", x); // Prints "8".
+    let x = 12;
+    println!("{}", x); // Prints "12".
+}
+println!("{}", x); // Prints "8".
+let x =  42;
+println!("{}", x); // Prints "42".
+#+END_SRC
+ - Siempre que se declara una funcion debemos anotar los types de los
+   parametros!!! y para declarar cual es la salida con ~->~ y si queremos que
+   la linea que estamos sea la que sea devuelta NO debemos poner ~;~, como en
+   el siguiente ejemplo:
+#+BEGIN_SRC rust
+fn add_one(x: i32) -> i32 {
+    x + 1
+}
+#+END_SRC
+ - Funciones que no retornan(que no es lo mismo que funciones que no
+   retornan nada) se les asigna ~!~, ejemplo:
+#+BEGIN_SRC rust
+fn diverges() -> ! {
+      panic!("This function never returns!!!");
+}
+#+END_SRC
+ - ~panic!()~ como todas las expresiones que terminan con ! es un macro que
+   causa que el thread se detenga con el siguiente mensaje. Si queremos mas
+   informacion podemos correr el programa en modo 
+   ~<shell>RUST_BACKTRACE=1 cargo run~ o sino con toooda la info
+   ~<shell>RUST_BACKTRACE=full cargo run~
+ - Punteros a funciones: Podemos crear variables bindings que apuntan a
+   funciones, por ejemplo:
+   ~let f: fn(i32) -> i32;~ Donde ~f~ es una variable que apunta a una
+   funcion que toma un ~i32~ y devuelve un ~i32~
+#+BEGIN_SRC rust
+fn plus_one(i: i32) -> i32 {
+    i + 1
+}
+
+// Without type inference:
+let f: fn(i32) -> i32 = plus_one;
+
+// With type inference:
+let f = plus_one;
+#+END_SRC
+Y podemos usar ~f~ de la siguiente manera: ~let six = f(5);~
+ - El type ~char~ en Rust es de 4 bytes ya que representa un Unicode
+ - La lista de types numericos en Rust:
+      - i8: entero de 8 bits
+      - i16: entero de 16 bits
+      - i32: entero de 32 bits
+      - i64: entero de 64 bits
+      - u8: entero sin signo de 8 bits
+      - u16: entero sin signo de 16 bits
+      - u32: entero sin signo de 32 bits
+      - u64: entero sin signo de 64 bits
+      - isize: entero con signo que su size depende de la maquina que lo
+        corremos
+      - usize: entero sin signo que su size depende de la maquina que lo
+        corremos
+      - f32: float de 32 bits
+      - f64: float de 64 bits
+ - Arrays: Representan secuencias de cosas, el type de un array se anota de
+   la siguiente manera: ~[T; N]~, Donde T es el type y N el numero de
+   elementos que es una constante en tiempo de ejecucion. Por ejemplo
+   podemos declarar un array: ~let a = [0; 20]// a = [i32; 20]~
+ - Los indices comienzan en cero!!! por ejemplo:
+   ~let names = ["Martin","Alejandro" "Noblia"];//names: [&str; 3]~
+   ~names[0]~ nos da el primer nombre!!!
+      [[https://doc.rust-lang.org/std/primitive.array.html][documentacion oficial de arrays]]
+ - Slices: como en otros lenguajes se utilizan slice para recorrer un vector
+   pero sin copiar esa parte(o sea una "view"): internamente un slice es un
+   puntero al comienzo de los datos y un length. Podemos usar ~&~(una
+   referencia) o ~[]~ para crear un slice de varias cosas, ejemplo:
+#+BEGIN_SRC rust
+let a = [0, 1, 2, 3, 4];
+let complete = &a[..]; // A slice containing all of the elements in `a`.
+let middle = &a[1..4]; // A slice of `a`: only the elements `1`, `2`, and `3`.
+#+END_SRC
+Y tienen el type: ~&[T]~
+      [[https://doc.rust-lang.org/std/primitive.slice.html][documentacion oficial de slices]]
+ - Comentarios: cuando ponemos ~//~ es un comentario comun pero cuando
+   ponemos ~///~ es un comentario para documentacion que soporta markdown!!!
+ - Loops: hay tres distintos:
+      - loop: Es el mas simple ya que es un loop infinito que no termina
+      - for: al estilo Python y con ~for x in 0..10~
+      - while: como C
+ - Loops labels: A veces cuando tenemos loops anidados queremos cortar uno de
+   ellos o continuar, con loops labels podemos especificar a que loop
+   queremos aplicar la accion, ejemplo:
+#+BEGIN_SRC rust
+'outer: for x in 0..10 {
+    'inner: for y in 0..10 {
+        if x % 2 == 0 { continue 'outer; } // Continues the loop over `x`.
+        if y % 2 == 0 { continue 'inner; } // Continues the loop over `y`.
+        println!("x: {}, y: {}", x, y);
+    }
+}
+#+END_SRC
+ - Vectors: Los vectores son arrays dinamicos en tamanio implementados con el
+   type: ~Vec<T>~ el T es un parametro del type que queremos que contenga el
+   Vector. Podemos crear vectores con el macro ~vec!~ por ejemplo:
+   ~let v = vec![1, 2, 3];// v:Vec<i32>~. Podemos tambien inicializar con un
+   valor: ~let v = vec![0; 7];//A Vec of seven zeros~. Para indexar los
+   Vectores debemos utilizar ~usize~ !!!
+ - Iterando sobre Vectors: Hay tres maneras:
+
+#+BEGIN_SRC rust
+let mut v = vec![1, 2, 3, 4, 5];
+
+for i in &v {
+    println!("A reference to {}", i);
+}
+
+for i in &mut v {
+    println!("A mutable reference to {}", i);
+}
+
+for i in v {
+    println!("Take ownership of the vector and its element {}", i);
+}
+#+END_SRC
+Si utilizamos la tercer opcion(tomando la propiedad del vector) solo podemos
+iterar sobre el una veZ!!!
+      [[https://doc.rust-lang.org/std/vec/][documentacion oficial sobre vectores]]

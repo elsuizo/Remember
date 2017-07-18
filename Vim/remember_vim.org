@@ -1,0 +1,99 @@
+* Cosas para recordar de Vim
+ - Borrar desde donde esta el cursor hasta el final de la linea
+ ~C~
+
+ - Set el idioma a espaniol
+ ~setlocal spell spelllang=es~
+ - Aumentar un valor numerico en el codigo
+ ~Ctrl-a~
+ - Disminuir valor numerico en el codigo
+ ~Ctrl-x~
+ - Copiar un bloque de codigo
+ ~yG~
+ - Search and replace(sin preguntar)
+ ~:%s/string_to_replace/string/~
+ - Search and replace(g significa global y si ponemos c nos va a preguntar si
+   queremos realmente cambiar la palabra que estamos navegando)
+   ~:%s/string_to_replace/string/g~
+ - Delete a block with 3 empty lines
+ ~:%s/^\ n \{3}//~
+ - Setear el lenguaje por ejemplo de Markdown
+ ~set syntax=markdown~
+ - Poner una linea en blanco en todas las lineas
+ ~:g/.\n\n\@!/norm o~
+ - Ir a la letra X que esta adelante en un renglon, donde X es cualquier
+   letra
+   ~fX~
+ - Ir a la letra X que esta atras en un renglon, donde X es cualquier letra
+ ~FX~
+ - Mover el cursor media pagina hacia arriba
+ ~Ctrl-U~
+ - Mover el cursor media pagina hacia abajo
+ ~Ctrl-D~
+ - Ir a la letra X que esta adelante(pero el cursor queda detras) en un
+   renglon, donde X es cualquier letra
+   ~tX~
+ - Ir a la letra X que esta atras(pero el cursor queda detras) en un renglon,
+   donde X es cualquier letra
+   ~TX~
+ - Alinear columnas. Seleccionamos el codigo que queremos alinear y luego:
+ ~:!column -t~ (! envia el texto a bash, o sea que es un comando de bash)
+ - Ver un archivo binario(por ejemplo un .hex)
+ ~:%!xxd~ o tambien con -b ~:%!xxd -b~
+ - Usando marcas
+ ~mk~ ---> marca la posicion actual guardandola en la letra k
+ ~'k~ ---> se mueve a la posicion ~k~ guardada
+ ~d'k~ ---> borra la posicion de la marca ~k~
+ - Acceder al historial de los comandos(sirve por ejemplo para copiar alguno
+   de los comandos)
+   ~q:~
+
+ - Quitar las saltos de lineas cuando se pasan de pantalla
+ ~:se nowrap~
+ - Con el magnifico sourround package: Podemos encerrar y cambiar todo lo que halla encerrado en un objeto texto
+    ~ysiw caracter~
+ - Para mover el buffer hacia arriba de todo desde donde esta el cursor
+ ~zt~
+ - Para mover el buffer hacia abajo de todo desde donde esta el cursor
+ ~zb~
+ - Para mover el buffer hacia el centro desde donde esta el cursor
+ ~zz~
+
+ - Para recorrer el historial hacia adelante de donde estuvo el cursor(que
+   puede ser a lo largo de otros files!!!)
+   ~Ctrl-o~
+ - Para recorrer el historial hacia adelante de donde estuvo el cursor(que
+   puede ser a lo largo de otros files!!!)
+   ~Ctrl-i~
+ - Para moverse al top del buffer
+ ~H~
+ - Para moverse al final del buffer(siempre con respecto a donde estoy con el
+   cursor)
+   ~L~
+ - Para moverse a la mitad del buffer(siempre con respecto a donde estoy con
+   el cursor)
+   ~M~
+ - Para buscar una letra en un renglon lo que ya sabiamos con ~t~ ~f~, pero
+   lo que agregamos es que si queremos seguir la busqueda presionamos
+   ~;~ y va hasta la proxima ocurrencia hacia adelante o sino con ~,~ va
+   hasta la proxima ocurrencia hacia atras
+ - OOtra que no sabia es ~around~, por ejemplo cuando queremos seleccionar
+   algo incluyendo ese algo(en este caso es un parentesis)
+   ~va(~
+ - Ooottra que no sabia es que cuando queremos seleccionar una palabra que
+   tiene ~_~ o puntos tenemos que usar la letra mayuscula W, por ejemplo si
+   queremos seleccionar toda la palabra
+   ~viW~
+ - Si queremos scroll down half-page
+ ~Ctrl-d~
+ - Si queremos scroll up half-page
+ ~Ctrl-u~
+ - Si queremos scroll up page(la f es de forward)
+ ~Ctrl-f~
+ - Si queremos scroll down page
+ ~Ctrl-b~
+ - Cuando buscamos una palabra en todo el file con ~/~ lo hacemos forward y
+   con ~n~ vamos a la proxima ocurrencia y con ~N~ volvemos hacia atras
+ - Cuando buscamos una palabra con ~?~ en todo el file lo hacemos
+   backward(hacia atras) y con ~N~ vamos hacia la proxima ocurrencia y con
+   ~n~ volvemos hacia atras

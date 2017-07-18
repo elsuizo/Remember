@@ -1,0 +1,4 @@
+* Cosas que siempre hay que saber de C
+
+ - Para inicializar un vector con un valor a todos sus componentes:
+      ~double vec[100] = {0};~
