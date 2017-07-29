@@ -1,0 +1,8 @@
+* Recursos de internet piolas sobre Rust
+
+** Blogs
+- Los types de rust vistos como una tabla
+[[http://cosmic.mearie.org/2014/01/periodic-table-of-rust-types/][Link]]
+- Listas enlazadas en Rust
+[[http://cglab.ca/~abeinges/blah/too-many-lists/book/][Link]]
+** Hilos del foro

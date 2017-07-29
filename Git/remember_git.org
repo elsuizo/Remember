@@ -1,0 +1,47 @@
+* Cosas para recordar de Git
+
+** Crear un repositorio de git(desde cero)
+~git init~
+** Ver el estado de nuestro repositorio
+~git status~
+** Agregar archivos que seran "traqueados" en el repositorio
+Podemos ir agregando archivos sin hacer commits correspondientes, o sea que
+nos sirve cuando queremos resumir todo un cambio con un solo commit
+~git add nombre_archivo~
+** Ver el historial de commits en nuestro repositorio
+Para ver la lista completa de commits de nuestro repositorio:
+~git log~
+Si queremos que la lista sea resumida cada commit en una linea, podemos
+utilizar el parametro ~onelined~, osea:
+~git log --oneline~
+** Comentar cambios del repositorio
+Con ~commit~ a secas se abre el editor de texto que tenemos configurado(obvio
+que neovim...), escribimos nuestra descripcion de los cambios guardamos y
+cerramos.
+~git commit~
+** Ver el delta de modificacion de un repositorio
+El siguiente comando nos va a mostrar de manera grafica las diferencias de
+los archivos que estan siendo seguidos en el repositorio.
+~git diff~
+** Agregar una modificacion al ultimo commit
+Cuando nos olvidamos de agregar una modificacion, podemos agregarla al ultimo
+commit con el siguiente comando:
+~git commit --amend~
+** Volver atras los cambios que realizamos en algun archivo
+Cuando queremos volver atras a una serie de cambios en algunos de los
+archivos que estamos siguiendo podemos hacerlo con el siguiente comando:
+~git checkout -- nombre_archivo~
+Esto es cuando no hemos agregado el archivo con ~add~!!!
+** Volver atras los cambios que realizamos en algun archivos
+~git reset HEAD nombre_archivo~
+Luego de esto si podemos hacer el paso de arriba para volver a el estado
+antes de agregar el archivo al stage
+** Eliminar un commit selectivamente
+Cuando queremos eliminar un commit selectivamente, primero necesitamos saber
+su numero de hash(el numero unico que identifica a cada commit),
+identificamos el commit de la lista de commits(que obtenemos con ~log~, lo
+que conviene en este caso es utilizar el parametro ~oneline~) y
+copiamos el numero de hash(no hace falta todo el numero solo 7)
+~git reset numero_de_commit~
+Hay que tener cuidado con esta metodologia, ya que podemos desincronizar con
+lo que otras personas hayan comiteado
