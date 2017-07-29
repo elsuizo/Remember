@@ -138,3 +138,12 @@ for i in v {
 Si utilizamos la tercer opcion(tomando la propiedad del vector) solo podemos
 iterar sobre el una veZ!!!
       [[https://doc.rust-lang.org/std/vec/][documentacion oficial sobre vectores]]
+
+** Tests
+Para correr los test, debemos marcar las funciones con ~#[test]~. y luego con
+el comando ~cargo run test~.
+Si queremos que algunos test no sean evaluados por default podemos poner
+~#[ignore]~. Luego cuando queremos correr a todos ellos que son ignorados
+utilizamos el comando: ~cargo test -- --ignored~
+** Sobre ~String~ y ~&str~
+Como sabemos Rust tiene esto dos types para representar strings
