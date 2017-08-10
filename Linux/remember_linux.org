@@ -1,2 +1,40 @@
 * Cosas para recordar de Linux
 
+** Debian related
+*** Agregar la architectura 32 bits a una 64
+      ~sudo dpkg --add-architecture i386~
+      ~sudo apt-get update~
+      ~sudo apt-get install build-essential gcc-multilib rpm libstdc++6:i386~
+      ~libgcc1:i386 zlib1g:i386 libncurses5:i386~
+*** programa para saber la info de hardware
+      ~apt-get install hardinfo~
+** General
+*** Salir-volver de un proceso suspendido(Ctrl-z)
+      ~fg~
+**** Tmux
+***** Abrir sesion
+            ~tmux -2 new -s session_name~
+***** reanudar sesion
+            ~tmux -2 attach -t session_name~
+***** cambiar a otra sesion
+            ~tmux switch -t session_name~
+***** ver todas las sesiones que hay
+            ~tmux list-sessions~
+**** mountar un puto .iso
+            ~7z x puto.iso~
+**** quemar un iso en un usb
+            Tener en cuenta que debemos saber bien cual es el puerto en el
+            que esta conectado nuestro usb.
+            ~sudo dd bs=4M if=input.iso of=/dev/sdx && sync~
+**** encriptar archivo desde la consola
+            ~gpg -c archivo~
+**** generar un pass piola(con pwgen)
+            Por ejemplo un pass de 37 chars
+            ~pwgen 37 1~
+**** para saber como se llama internamente un programa(esto es re para i3)
+            Esto lo usas en i3-wm cuando queres que un programa x se ejecute
+            solo en un workspace(por ejemplo yo solo veo los pdf en el
+            workspace 4 con zathura)
+            ~xprop~
+**** convertir una frase a ASCII art
+            ~figlet text_a_convertir~
