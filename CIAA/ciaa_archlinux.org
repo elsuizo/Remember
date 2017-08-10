@@ -1,0 +1,24 @@
+* Instalando dependencias de la Edu-ciaa en Arch
+ - PHP:
+      ~sudo pacman -S php~
+ - libftdi:
+      ~sudo pacman -S libftdi~
+ - libusb:
+      ~sudo pacman -S libusb~
+ - libncurses:
+      ~sudo pacman -S ncurses~
+ - arm-none-eabi-gcc:
+      ~sudo pacman -S arm-none-eabi-gcc arm-none-eabi-gdb arm-none-eabi-binutils arm-none-eabi-newlib~
+ - openocd:
+      ~sudo pacman -S openocd~
+ - Agregar permisos para manejar los puertos(tty):
+      ~sudo usermod -a -G uucp user_name~
+ - Bajar el repo del Firmware:
+      ~git clone --recursive https://github.com/ciaa/Firmware.git~
+* Para correr alguno de los ejemplos del Firmware
+ - Copiar el template backup de Makefile:
+            ~cp Makefile.config Makefile.mine~
+ - Modificar Makefile.mine:
+            ~BOARD ?= edu_ciaa_nxp~
+       - Eliminar los wanrnings de funciones no utilizadas:
+                  ~CFLAGS+=-Wno-unused-function~
