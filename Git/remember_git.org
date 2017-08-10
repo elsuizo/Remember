@@ -45,3 +45,16 @@ copiamos el numero de hash(no hace falta todo el numero solo 7)
 ~git reset numero_de_commit~
 Hay que tener cuidado con esta metodologia, ya que podemos desincronizar con
 lo que otras personas hayan comiteado
+** Actualizar nuestro repositorio forkeado
+      - ir al repositorio original copiar la direccion de github
+      - hacer: ~git remote add upstream <direccion del repo original>~(este
+        paso hay que hacerlo una sola vez)
+      - bajamos las actualizaciones que estamos por detras con:
+            ~git fetch upstream~
+      - cambiamos a la rama master con: ~git checkout master~
+      - luego podemos hacer la fusion de lo que bajamos con nuestro repo
+            ~git merge upstream/master~
+      - subimos los cambios con: ~git push origin master~
+** Agregar user y mail
+      ~git config --global user.name "elsuizo"~
+      ~git config --global user.mail "mail"~
