@@ -1,0 +1,952 @@
+* Capitulo1 Introduccion a OSEK
+OSEK es un comite de estandarizacion creado en el 94 por las automotrices
+europeas, que incluyen varios estandares:
+ - OSEK OS
+ - OSEK COM
+ - OSEK NM
+ - OSEK Implementation language(de ahora en mas OIL)
+ - OSEK RTI
+ - OSEK Time Trigger Operating System
+ En este libro solo se trata el OSEK OS y OIL. Ademas de los estandares en si
+ OSEK-VDX a traves del proyecto MODISTAR realizo la especificaciones de los
+ test y se encuentran disponibles en la pagina(que parece que no anda mas).
+ Gracias a esta estandarizacion es que se puede reutilizar codigo entre
+ proyectos(ya que como FREE-RTOS lo que se programa son tareas). Este
+ estandar no va a recibir mas actulizaciones(por ello debe ser que ni la
+ pagina funcione) ya que la industria automotriz esta migrando a un nuevo
+ estandar llamado AUTOSAR-OS y es compatible con OSEK-OS
+[[http://www.autosar.org/][pagina de AUTOSAR-OS]]
+** Dinamico vs estatico
+A diferencia de otros sistemas operativos como FreeRTOS, OSEK es un sistema
+estatico ya que las tareas la memoria que ocupan sus prioridades ... etc son
+definidos en tiempo de generacion antes de compilar el binario definitivo.
+Esta pensado para ser utilizado con un proposito especifico por ello que se
+customiza tanto todos los recursos.
+* Capitulo 2: Clases de conformidad
+Con la finalidad de que OSEK-OS pueda ser utilizado en diferentes sistemas
+con diferentes capacidades y demandas(memoria, capacidad de procesamiento
+...etc) es que se definene cuatro clases de conformmidad(CC). Estas clases
+existen para que puedan ser comparados dos sistemas distintos, tambien para
+agrupar las interfaces segun la clase de conformidad y facilitar la
+certificacion la cual se realiza por clases de conformidad sin ser necesario
+implementar todas las conformidades. Las clases de conformidad se determinan
+segun las siguientes atributos:
+ - Multiple activacion de tareas basicas
+ - Tipos de tareas aceptadas: basicas y extendidas
+ - Cantidad de tareas por prioridad
+De esta manera se definen las siguientes clases de cconformidad que soportan
+respectivamente:
+ - BCC1: Unicamente tareas basicas con un maximo de una activacion por tarea
+   y todas las tareas con prioridad diferente
+ - BCC2: Como BCC1 pero con mas de una tarea por prioridad y las tareas
+   soportan mas de una activacion
+ - ECC1: Como BCC1 pero con tareas extendidas
+ - ECC2: Como ECC1 pero con mas de una tarea por prioridad y las tareas
+   soportan mas de una activacion.
+Ademas se definen una cantidad minima de requerimientos por cada clase de
+conformidad:
+|------------------------------------------------------+---------------+------+------+------------------------|
+| Caracteristicas                                      | BCC1          | BCC2 | ECC1 |                   ECC2 |
+|------------------------------------------------------+---------------+------+------+------------------------|
+| Mas de una activacion                                | no            |   si |   no | si para tareas basicas |
+| Cantidad de tareas en un estado distinto a suspended | >7            |   >7 |  >15 |                    >15 |
+| Mas de una tarea por prioridad                       | no            |   si |   no |                     si |
+| Cantidad de eventos por tarea                        | -             |    - |   >7 |                     >7 |
+| Cantidad de prioridades                              | >7            |   >7 |  >15 |                    >15 |
+| Recursos                                             | RES_SCHEDULER |   >7 |   >7 |                     >7 |
+| Reursos internos                                     | >1            |   >1 |   >1 |                     >1 |
+| Alarmas                                              | >0            |   >0 |   >0 |                     >0 |
+|------------------------------------------------------+---------------+------+------+------------------------|
+** Clases de conformidad en la CIAA
+El OSEK-OS de la CIAA soporta todas las conformidades de forma automatica.
+Dependiendo de la configuracion que generemos el sistema operativo elije de
+manera automatica la clase de conformidad que desea implementar. NOTA: la
+CIAA no tiene todavia una tabla como la anterior.
+
+* Capitulo3 Configuracion y generacion
+Ya que OSEK-OS es un sistema operativo estatico necesita ser configurado,
+cantidad de tareas memoria maxima ...etc. Para ello el estandar definio otro
+estandar llamado OSEK Implementation Language comunmente llamado OIL. Este
+lenguage es textual(que se escribe???) con una sintaxis similar a la de C,
+donde se indican las caracteristicas del sistema operativo como ser: tareas,
+prioridades, stack, interrupciones etc. Por ejemplo:
+#+BEGIN_SRC oil
+TASK InitTask {
+   PRIORITY = 1;
+   SCHEDULE = NON;
+   ACTIVATION = 1;
+   STACK = 128;
+   TYPE = BASIC;
+   AUTOSTART = TRUE {
+         APPMODE = AplicationMode1;
+      }
+   }
+#+END_SRC
+En este ejemplo vemos que se define una tarea llamada "InitTask" con una
+prioridad de 1, 128 bytes de stack y la cual se autoinicia al comienzo.
+** Configuracion
+La configuracion del sistema operativo se hace como vimos a traves del
+archivo de configuracion .oil
+** Generacion
+El proceso de generacion no es parte del estandar y por ello cada
+implementacion elije como hacerla. En este caso eligieron php por ejemplo.
+** Ventajas y desventajas de un sistema operativo estatico o generado
+Una buena implementacion de OSEK debe realizar una extenso analisis del
+codigo a generar para lograr que el codigo generado tenga bajos tiempos de
+ejecucion y ademas bajos niveles de ROM y RAM. Sin embargo esto hace que el
+testing sea muy dificil ya que todas las configuraciones no pueden ser
+testeadas. Ya que no todas las configuraciones pueden ser testeadas se deben
+seleccionar un subconjunto y esperar que los resultados sean tambien validos
+para todas las configuraciones no testeadas.
+Nota: Porque no se hacen los test personalizados una vez que la configuracion
+esta hecha???
+** Recursos
+A diferencia de otros sistemas operativos en OSEK-OS debemos indicar en la
+configuracion que tareas e interrupciones utilizan que recurso.
+** Scheduler y Tasks
+Como vimos en la configuracion de ejemplo, las tareas tienen sus prioridades
+su tamanio de *STACK*, cantidad de activaciones...etc. Gracias a esto el
+*SCHEDULER* se adapta a la configuracion, por ejemplo se utiliza una cola
+FIFO por prioridad y el largo de cada cola FIFO sera la suma de las tareas
+con una prioridad determinada. Por otro lado existen tareas que pueden ser
+interrumpidas (*SCHEDULE=FULL*) y otras que no (*SCHEDULE=NON*)
+* Capitulo4 Tareas(*Tasks*)
+Cada tarea de OSEK se define como una funcion (que no recibe parametros y
+retorna void) utilizando la macro `TASK(Task_name)`, para poder utilizarla
+debemos incluir el archivo `os.h`. A diferencia de una funcion una tarea debe
+terminar utilizando la interfaz `ChainTask` o `TerminateTask`(esto de
+ChainTask no me gusta) o tambien
+podria no terminar nunca y quedar en un ciclo infinito(que no es recomendable
+por el autor). Ejemplo de definicion
+de una tarea:
+#+BEGIN_SRC C
+TASK(InitTask)
+{
+      /* ... */
+      ChainTask(OtherTask);
+}
+TASK(OtherTask)
+{
+      /* ... */
+      TerminateTask();
+}
+#+END_SRC
+
+En este ejemplo vemos que se definen las tareas `InitTask` y `OtherTask`
+utilizando el macro `TASK`. Para el control de las tareas OSEK define las
+siguientes interfaces:
+ - `ActivateTask`: activa una tarea
+ - `ChainTask`: realiza la combinacion de `ActivateTask` seguido de
+   `TerminateTask`
+ - `TerminateTask`: termina una tarea.
+ Todas las tareas deben ser definidas con este mecanismo. Las tareas no deben
+ ser declaradas(ya que el sistema operativo lo hace por nosotros)
+** Sobre las tareas infinitas y `while(1)`
+En los sistemas de escritorio las tareas se ejecutan de manera indefinida
+hasta que el usuario decide finalizarlas, el los sistemas de tiempo real en
+cambio es una buena practica que las tareas sean iniciadas cuando tienen que
+realizar alguna tarea(basados en eventos) y sean finalizados al terminar los
+mismos. tareas con un `while(1)` o `while(exit_flag)` no son recomendadas.
+Es importante destacar que OSEK-OS no ejecutara otra tarea de igual o menor
+prioridad, si ademas la tarea ejecutada es *NONPREEMPTIVE* el sistema no
+ejecutara ninguna otra tarea. Por ello la utilizacion de bucles `while(1)`
+debe ser evitada tanto como se pueda. Si una tarea debe ser ejecutada
+constantemente la misma puede terminarse y volver a activarse, siendo una
+mejor opcion que la utilizacion de `while()`. Para ello se recomienda la
+utilizacion de la interfaz `ChainTask`. En los casos que una tarea debe
+esperar y no puede terminar, OSEK-OS provee la utilizacion de eventos
+** Estados
+Cada tarea de OSEK-OS se encuentra siempre en algunos de los siguientes
+estados:
+ - *running*: la tarea se encuentra corriendo, esta utilizando los recursos
+   del procesador en este mismo momento. En cada momento una unica tarea
+   puede encontrarse en este estado.
+ - *ready*: En este estado estan todas las tareas que se encuentran esperando
+   los recursos del procesador para poder correr. No se encuentran en el
+   estado running porque una tarea de mayor prioridad se encuentra corriendo
+   o sea en *running*.
+ - *waiting*: La tarea que se encontraba corriendo y decidio esperar la
+   ocurrencia de un evento, hasta que el evento que espera ocurra la misma se
+   encontrara en el estado *waiting*.
+ - *supended*: Es el estado por defecto de las tareas, la tarea esta
+   momentaneamente desactivada.
+** Tipos de Tareas
+EL sistema operativo OSEK-OS existen dos tipos de tareas:
+ - *BASIC*: Son aquellas que no tengan eventos y por ende carezcan del estado
+   *waiting*.
+ - *EXTENDED*: Son aquellas tareas que tienen eventos y por ende pueden
+   esperar hasta que uno o mas eventos ocurran.
+Los eventos deben ser definidos en el .oill como sigue:
+[[/home/elsuizo/Dropbox/eventos_oil.oil][ejemplo eventos en OIL]]
+#+BEGIN_SRC oil
+/* TAREA A */
+TASK(TaskA) {
+      SCHEDULE = NON;
+      ACTIVATION = 1;
+      PRIORITY = 5;
+      STACK = 128;
+      TYPE = EXTENDED;
+      EVENT = Event1;
+      EVENT = Event2
+      }
+/* TAREA B */
+TASK(TaskB) {
+      SCHEDULE = NON;
+      ACTIVATION = 1;
+      PRIORITY = 5;
+      STACK = 128;
+      TYPE = EXTENDED;
+      EVENT = Event2
+      }
+
+EVENT Event1;
+EVENT Event2;
+#+END_SRC
+
+El sistema operativo ofrece las siguientes interfaces para manejar los
+eventos:
+ - ClearEvent
+ - GetEvent
+ - SetEvent
+ - WaitEvent
+
+Un ejemplo de codigo con estas dos tareas podria ser:
+[[/home/elsuizo/Programacion/Embedded/ejemplo_tareas_events.c][ejemplo tareas con eventos]]
+#+BEGIN_SRC c
+TASK(TaskA) {
+   EventMaskType Events;
+   /* do something */
+   WaitEvent(Event1|Event2);
+   GetEvent(TaskA, &Events);
+   ClearEvent(Events);
+   /* process events */
+   TerminateTask();
+}
+
+TASK(TaskB) {
+   /* perform some action's*/
+   /* inform TaskA by setting an event */
+   SetEvent(TaskA, Event1);
+
+   TerminateTask();
+}
+#+END_SRC
+El ejemplo implementa dos tareas, `TaskA` corre y decide esperar hasta que
+el `Event1` y/o `Event2` eventos ocurran. `TaskB` realiza alguna operacion y
+luego informa a la tarea `TaskA` mediante el evento `Event1`. Al ocurrir el
+evento `TaskA` no sabe que evento ha ocurrido ya que ha llamado a `WaitEvent`
+con dos eventos. Por ello sera necesario utilizar la funcion `GetEvent` para
+saber que evento/s ocurrieron y por ultimo hacer `ClearEvent` para borrar
+los eventos ocurridos. A continuacion falta implementar el codigo que procesa
+la informacion relevante a uno o ambos eventos.
+Si se llama a `WaitEvent` con un unico evento se puede simplificar el codigo
+como sigue:
+[[/home/elsuizo/Programacion/Embedded/ejemplo_tarea_1_event.c][ejemplo tarea con 1 evento]]
+#+BEGIN_SRC c
+TASK(TaskA) {
+   WaitEvent(Event1);
+   ClearEvent(Event1);
+
+   /* process the Event1 */
+   TerminateTask();
+}
+#+END_SRC
+En este caso no es necesario llamar a la funcion `GetEvent` ya que solo el
+`Event1` puede haber ocurrido.
+** Multiples activaciones
+Las tareas basicas pueden ser configuradas para tener multiples
+activaciones. Esto implica que las mismas pueden ser inseradas varias veces
+en la lista de tareas *ready*(a ser ejecutadas) y posteriormente ejecutadas
+segun corresponda dependiendo del *SCHEDULER*. Por ejemplo si una tarea
+basica es utilizada para procesar un buffer de recepcion de datos se podria
+generar el siguiente codigo:
+[[/home/elsuizo/Dropbox/activacion_multiple_de_una_tarea.c][ejemplo C]]
+#+BEGIN_SRC c
+ISR(rx_indication) {
+   /* copy data to intermediate buffer */
+   ActivateTask(process_rx_indication);
+}
+
+TASK(process_rx_indication) {
+   /* process input data */
+   TerminateTask();
+}
+#+END_SRC
+[[/home/elsuizo/Dropbox/activacion_multiple_tarea.oil][ejemplo oil]]
+#+BEGIN_SRC oil
+/*-------------------------------------------------------------------------
+ *               ejemplo de tarea con activacion multiple
+ -------------------------------------------------------------------------*/
+TASK process_rx_indication {
+   PRIORITY = 3;
+   ACTIVATION = 10; /* esta tarea podra ser activada solo 10 veces */
+   STACK = 512;
+   TYPE = BASIC; /* unicamente las tareas BASIC pueden tener un valor de activacion > 1 */
+   EVENT = Event1;
+}
+#+END_SRC
+
+Cada vez que una tarea es activada se ingresa a una cola FIFO para ser
+procesada. El sistema operativo tiene una FIFO por prioridad.
+
+** Prioridades
+En OSEK-OS las prioridades de las tareas se definen de forma estatica en el
+OIL. La prioridad es un numero entero entre 0 y 255. Mayor sea el numero
+mayor es la prioridad. Si dos tareas tienen la misma prioridad son
+ejecuatadas segun su orden de activacion. Una tarea que se encuentra
+corriendo nunca va a ser interrumpida por una de igual o menor prioridad.
+
+NOTA: A diferencia de otros Sistemas Operativos donde el tiempo de
+procesamiento es repartido de forma ponderada segun la prioridad, en OSEK-OS
+no se reparte el tiempo de ejecucion, para pasar a correr una tarea de menor
+prioridad. La tarea de mayor prioridad debe terminar o pasar al estado
+waiting, hasta tanto se continuara son su ejecucion.
+
+** Orden de ejecucion
+   OSEK utiliza una cola FIFO por prioridad para almacenar las tareas en estado ready
+a ser ejecutadas. Supongamos que tenemos 1 sistema con 5 tareas todas de distinta
+prioridad(10, 8, 4, 3, 0)
+
+** Tipos de schedulling
+OSEK-OS ofrece dos tipos de schedulling:
+ 1. NON-PREEMPTIVE: Son tareas que no son interrumpidas por aquellas de mayor
+ prioridad, salvo que la misma tarea llame al *Schedulle*, pase al estado
+ waiting llamando a `WaitEvent` o terminen
+ 2. PREMPTIVE: Son tareas que pueden ser interrumpidas en cualquier momento
+ cuando se encuentre una tarea de mayor prioridad en la lista ready.
+ Para configurar este comportamiento en el OIL se utiliza el parametro
+ `SCHEDULE` con los valores --> `NON` o `FULL`
+#+BEGIN_SRC oil
+/*-------------------------------------------------------------------------
+ *                        ejemplo de eleccion de tipo de Schedulling
+   Cuando se elije una tarea que sea NON-PREMPTIVE con el parametro
+   SCHEDULLE = NON;
+   sera una tarea que no puede ser interrumpida por otras tareas de mayor
+   prioridad salvo que la misma tarea llame al SCHEDULLE
+   o sino que pase al estado waiting llamando a WaitEvent o que termine
+   Mientras que las tareas que tengan el parametro con SCHEDULLE = FULL
+   podran ser interrumpidas en cualquier momento por tares de mayor prioridad
+   que se encuentren en el estado ready
+ -------------------------------------------------------------------------*/
+ TASK(task_A) {
+    SCHEDULE = NON;
+    ACTIVATION = 1;
+    PRIORITY = 5;
+    STACK = 128;
+    TYPE = BASIC;
+ }
+
+ TASK(task_B) {
+    SCHEDULE = FULL;
+    ACTIVATION = 1;
+    PRIORITY = 8;
+    STACK = 128;
+    TYPE = BASIC;
+ }
+
+ TASK(task_C) {
+   SCHEDULE = NON;
+   ACTIVATION = 1;
+   PRIORITY = 10;
+   STACK = 128;
+   TYPE = BASIC;
+ }
+#+END_SRC
+La funcion SCHEDULLE es una alternativa para forzar al OS de verificar si hay
+tareas de mayor prioridad por correr. Las tareas NON se utilizan generalmente
+en dos situaciones:
+ 1. Tareas de corta ejecucion: Muchas veces una tarea de muy corta duracion
+ se configura como NON-PREMPTIVE, de esta forma se evita que sea
+ interrumpida. EL tiempo de ejecucion llevaria al cambio de contexto y una
+ perdida de tiempo.
+ 2. Sistemas deterministicos: Muchas veces se quiere que el sistema sea mas
+ deterministico. Para ello se configura a las tareas como NON-PREMPTIVE y se
+ llama al Schedulle. Por ejemplo:
+#+BEGIN_SRC c
+TASK(task_A) {
+   /* perform some actions */
+   Schedule();
+   /* perform more actions */
+   Schedule();
+   /* perform more actions */
+   TerminateTaks();
+}
+#+END_SRC
+** Puntos de schedulling
+Los puntos de schedulling son los puntos en los que el OS analiza la lista de
+tareas y de haber una de mayor prioridad procede a ejecutarla. Estos puntos
+estan claramente definidos en el standar.
+El primer punto de schedulling en cuando finaliza la inicializacion del
+sistema operativo llamado `StartOS`. Una vez iniciado el sistema operativo
+los puntos de schedulling pueden ser diferenciados segun la tarea que este
+corriendo ya sea la misma NON-PREMPTIVE o PREMPTIVE.
+** Puntos de schedulling cuando una tarea es NON-PREMPTIVE
+ - Al llamar a Schedule cuando retorna `E_OK`
+** Puntos de schedulling cuando una tarea es PREMPTIVE
+ - Al finalizar un llamado a `ActivateTask` que retorna `E_OK`
+ - Al finalzar un llamado a `ChainTask` que no retorna
+ - Al finalizar un llamado a `TerminateTask` que no retorna
+ - Al finalizar un llamado a `ReleaseResource` que retorna `E_OK`
+ - Al finalizar un llamado a `SetEvent` que no retorna
+ - Al expirar una alarma que activa una tarea
+ - Al terminar la ejecucion de una ISR de categoria 2
+* Capitulo 5 Recursos
+Como sabemos si dos aplicaciones utilizan simultaneamente un recurso(bus de
+datos, un puerto...etc) por ello los sistemas convencionales utilizan
+semaforos o mutex para sincronizar el uso de recursos(que no hay
+interferencias). Pero estos algoritmos tienen dos grandes complicaciones:
+ - Inversion de prioridades: Se da cuando dos tareas de distinta prioridad
+   comparten un recurso antes y la tarea de menor prioridad bloquea el
+   recurso antes de que la de prioridad mayor, quedando bloqueada esta ultima
+   tarea en el momento que precise el uso del recurso compartido. Esto hace
+   que queden invertidas de forma efectiva las prioridades relativas entre
+   ambas ya que la tarea que originalmente tenia mayor prioridad queda
+   supeditada a la tarea de menor prioridad. Como consecuencia la tarea de
+   mayor prioridad puede no cumplir sus requisitos de tiempo establecidos.
+   Un ejemplo famoso de inversion de prioridades es el que sucedio en la
+   mision Mars Pathfinder
+ - Bloqueos mutuos(Deadlocks): Se da cuando dos tareas utlizan dos recursos(o
+   semaforos) en orden inverso bloqueandose mutuamente
+
+OSEK-OS ofrece una solucion para el acceso a un recurso que evita estos
+problemas
+** OSEK Priority Ceiling Protocol
+OSEK provee una solucion mas adecuada a este problema mediante la
+utilizacioin de *recursos*. OSEK le otorga al recurso en si mismo una
+prioridad, esta prioridad sera mayor para la tarea que tenga mas alta
+prioridad que lo utiliza(al recurso) y menor que la prioridad de la siguiente
+tarea de mayor prioridad que no utiliza el recurso. Para la utilizacion de
+un recurso los mismos deben ser declarados en el archivo OIL e indicado que
+recursos van a ser utilizados por cada tarea, por ejemplo
+#+BEGIN_SRC oil
+/*-------------------------------------------------------------------------
+ *                        ejemplo de definicion de recurso
+ -------------------------------------------------------------------------*/
+ TASK(task_a) {
+    SCHEDULE = NON;
+    ACTIVATION = 1;
+    PRIORITY = 5;
+    STACK = 128;
+    TYPE = BASIC;
+    RESOURCE = Res1;
+    RESOURCE = Res2;
+ }
+
+ TASK(task_b) {
+    SCHEDULE = NON;
+    ACTIVATION = 1;
+    PRIORITY = 7;
+    STACK = 128;
+    TYPE = BASIC;
+    RESOURCE = Res1;
+ }
+
+ TASK(task_c) {
+    SCHEDULE = NON;
+    ACTIVATION = 1;
+    PRIORITY = 3;
+    STACK = 128;
+    TYPE = BASIC;
+    RESOURCE = Res2;
+ }
+
+ RESOURCE Res1;
+ RESOURCE Res2;
+#+END_SRC
+El ejemplo muestra la configuracion de 3 tareas con 2 recursos disponibles:
+`Res1` y `Res2`. El recurso `Res1` tendra una prioridad equivalente a 7.5 ya
+que es utilizada por `task_A` y `task_B`. Mientras que el recurso `Res2`
+tendra una prioridad de 5.5 ya que es utilizado por task_A y task_B. Desde el
+codigo podemos acceder a los recursos mediante las siguientes interfaces:
+ - GetResources
+ - ReleaseResource
+
+ A continuacion un ejemplo en el que las tareas task_A y task_b utilizan los
+ recursos Res1 y Res2
+#+BEGIN_SRC c
+TASK(task_A) {
+   /* some code */
+   GetResource(res1);
+   /* perform actions using resource1 */
+   /* during this section task_A has priority 7.5 */
+   ReleaseResource(Res1);
+   TerminateTask();
+}
+
+TASK(task_c) {
+   /* some code here */
+   GetResource(Res2);
+   /* perform actions using resource2 */
+   /* during this section task_C has priority 5.5 */
+   ReleaseResource(Res2);
+   TerminateTask();
+}
+#+END_SRC
+
+** El SCHEDULER como recurso
+Hay un recurso que siempre se encuentra disponible para las tareas y es el
+`RES_SCHEDULER` mediante la utilizacion de este recurso una tarea PREMPTIVE
+puede bloquear a cualquier otra tarea mientras se encuentra realizando una
+tarea critica
+#+BEGIN_SRC c
+TASK(demo_task) {
+   /* non critical code here */
+   GetResourses(RES_SCHEDULER);
+   /*-------------------------------------------------------------------------
+    *                        critical code here!!!
+    -------------------------------------------------------------------------*/
+   ReleaseResource(RES_SCHEDULER);
+   /* more non crtical code */
+   TerminateTask();
+}
+#+END_SRC
+
+#+BEGIN_SRC oil
+/*-------------------------------------------------------------------------
+ *                        ejemplo de RES_SCHEDULER
+ -------------------------------------------------------------------------*/
+TASK demo_task {
+   PRIORITY = 1;
+   ACTIVATION = 1;
+   STACK = 512;
+   TYPE = BASIC;
+   SCHEDULE = FULL;
+}
+#+END_SRC
+NOTE: el OSEK de la ciaa parece que no soporta el uso de esto
+** Recursos internos
+Ademas de los recursos que ya vimos OSEK-OS ofrece la posibilidad de definir
+recursos internos. Estos recursos a diferencia de los ya discutidos no se
+ocupan y liberan mediante la utilizacion de `GetResource` y `ReleaseResource`
+sino que son automaticamente reservados y liberados por el sistema al
+comenzar y finalizar una tarea.
+Y para que sirven entonces?. Lo que podemos hacer con esta funcionalidad es
+crear grupos de tareas *cooperativas* las cuales utilizan el mismo recurso
+interno. De esta forma todas las tareas que utilicen un mismo recurso interno
+se comportan entre si como `NON-PREMPTIVE`(tareas que no pueden ser
+interrumpidas)
+[[/home/elsuizo/Dropbox/ejemplo_recursos_internos.c][ejemplo del uso de recursos internos en C]]
+#+BEGIN_SRC c
+TASK(demo_task) {
+   /*-------------------------------------------------------------------------
+   run some critical code here
+   which is critical between demo_task1
+   and demo_task3 which both have the same
+   internal resource
+   -------------------------------------------------------------------------*/
+   TerminateTask();
+}
+#+END_SRC
+
+#+BEGIN_SRC oil
+TASK demo_task1 {
+   PRIORITY = 1;
+   ACTIVATION = 1;
+   STACK = 512;
+   TYPE = BASIC;
+   SCHEDULE = FULL;
+   RESOURCE = ResInt1;
+}
+
+TASK demo_task2 {
+   PRIORITY = 2;
+   ACTIVATION = 1;
+   STACK = 512;
+   TYPE = BASIC;
+   SCHEDULE = FULL;
+}
+
+TASK demo_task3 {
+   PRIORITY = 5;
+   ACTIVATION = 1;
+   STACK = 512;
+   TYPE = BASIC;
+   SCHEDULE = FULL;
+   RESOURCE = ResInt1;
+}
+
+TASK demo_task4 {
+   PRIORITY = 6;
+   ACTIVATION = 1;
+   STACK = 512;
+   TYPE = BASIC;
+   SCHEDULE = FULL;
+   RESOURCE = ResInt1;
+}
+
+RESOURCE ResInt1 {
+   RESOURCEPROPERTY = INTERNAL;
+}
+#+END_SRC
+Como se puede ver del ejemplo, la tarea `demo_task1` durante su procesamiento
+no sera nunca interrumpida por la tarea `demo_task4` a pesar de esta ultima
+tener una mas alta prioridad que la primera, sin embargo la tarea que no
+tiene el recurso si la podra interrumpir.
+NOTE1: El ejemplo esta mal la numeracion que habla(pag 32)
+NOTE2: Esto parece ser que no esta soportado por el OSEK-OS de la CIAA
+** Recursos linkeados
+al *linkearse* dos recursos se los une internamente de modo que para el
+sistema operativo tienen diferentes nombres pero son tratados como si fueran
+el mismo recurso. Dado que OSEK-OS no permite el uso de un mismo recurso de
+forma anidada, en el caso de que esto fuese necesario se podria utilizar un
+recurso linkeado
+La utilizacion de recursos linkeados puede ser de interes cuando se integran
+tareas que fueron inicialmente implementadas para diferentes sistemas y en un
+nuevo proyecto deben convivir. Asi se puede modificar la configuracion y
+mantener el codigo portable entre multiples proyectos.
+#+BEGIN_SRC c
+TASK(task_A) {
+   /* code */
+   GetResource(Res1);
+   /*-------------------------------------------------------------------------
+    *                        critical section here!!!
+    -------------------------------------------------------------------------*/
+   Release(Res1);
+   TerminateTask();
+}
+
+TASK(task_B) {
+   /* code */
+   GetResource(Res2);
+   /*-------------------------------------------------------------------------
+    *                        critical section here!!!
+    -------------------------------------------------------------------------*/
+   TerminateTask();
+}
+
+
+#+END_SRC
+[[/home/elsuizo/Dropbox/ejemplo_recursos_linkeados.oil][ejemplo recursos linkeados oil]]
+#+BEGIN_SRC oil
+TASK task_A {
+   /* resourse  */
+   RESOURCE = Res1;
+};
+
+TASK task_B {
+   /* code */
+   RESOURCE = Res2;
+}
+
+RESOURCE Res1;
+
+RESOURCE Res2 {
+   RESOURCEPROPERTY = LINKED {
+      LINKEDRESOURCE = Res1;
+   }
+};
+#+END_SRC
+NOTE: el OSEK-OS de la CIAA no soporta esto por ahora
+** Recursos en interrupciones
+Hasta ahora no vimos como podemos hacer para compartir un recurso entre una o
+mas tareas y una o mas interrupcion. Esto podria ser necesario si por
+ejemplo se desease procesar los todos datos de una variable global o recurso de
+hardware desde una tarea y una interrupcion. Para este fin y evitar problemas
+de sincronizacion se podrian utilizar las interfaces: `DisableAllInterrupts`
+y `EnableAllInterrupts` o `SuspendAllInterrupts` y `ResumeAllInterrupts` o
+`SuspendOSInterrupts` y `ResumeOSInterrupts` sin embargo todas estas llamadas
+habilitarian y desabilitarian todas las interrupciones del sistema o todas
+las de categoria 2, esta solucion es mucho mas invasiva de lo que el usuario
+necesita, que es desabilitar unicamente las interrupciones que pueden llegar
+a utilizar el recurso obtenido. OSEK-OS descrbe una funcionalidad opcional
+que permite compartir recursos entre tareas e interupciones. De esta forma
+si un recurso es compartido entre una combinacion de tareas e interrupciones
+al momento de llamar a `GetResource` la interfaz se comporta de forma
+diferente si es llamada desde una interrupcion o desde una tarea.
+Si se llama a `GetResource` desde una tarea, se modifica la prioridad segun
+lo explicado antes, pero ademas se deshabilitan todas las interrupciones que
+utilizan el recurso que se desea obtener. Si se llama `GetResourse` desde una
+interrupcion, el sistema operativo deshabilite las interrupciones de mayor
+prioridad que utilizan el recurso que se desea obtener.
+Al liberarse el recurso el sistema operativo realizaria la operacion
+contraria a lo recien explicado.
+#+BEGIN_SRC c
+TASK(task_A) {
+   /* some code here */
+   GetResource(Res1);
+   /*-------------------------------------------------------------------------
+    *                        critical section here
+    -------------------------------------------------------------------------*/
+   ReleaseResourse(Res1);
+   TerminateTask();
+}
+
+ISR(Isr1) {
+   /* some code here */
+   GetResource(Res1);
+   /*-------------------------------------------------------------------------
+    *                        critical section here!!!
+    -------------------------------------------------------------------------*/
+   ReleaseResource(Res1);
+}
+#+END_SRC
+
+#+BEGIN_SRC oil
+TASK task_A {
+   /* some config here */
+   RESOURCE = Res1;
+
+};
+
+ISR Isr1 {
+   /* some config here */
+   RESOURCE = Res1;
+}
+
+RESOURCE = Res1;
+#+END_SRC
+* Capitulo 6 Alarmas
+  Las alarmas son utilizadas para realizar una accion luego de un determinado tiempo
+  las alarmas de OSEK-OS pueden realizar tres tipos de acciones:
+  - Activar una alarma
+  - Establecer el evento de una tarea
+  - Llamar un callback(retrollamada en C)
+    Para implementar esto tenemos que declarar un contador que sirva de base de tiempo
+    en el archivo de configuracion .oil. Por ejemplo:
+#+BEGIN_SRC oil
+ALARM activate_taskC {
+COUNTER = SoftwareCounter;
+ACTION = ACTIVATETASK {
+      TASK = task_C;
+}
+AUTOSTART = FALSE
+}
+
+ALARM SetEvenTaskA {
+COUNTER = SoftwareCounter;
+ACTION = SETEVENT {
+      TASK = task_A;
+      EVENT = event1;
+}
+AUTOSTART = FALSE;
+}
+#+END_SRC
+El ejemplo muestra dos alarmas, la primera alarma se llama ~activate_taskC~ y
+al expirar activa la tarea task_C. La segunda alarma se llama ~SetEventTaskA~ y
+al expirar activa el evento ~event1~ de la tarea ~task_A~. En este ejemplo
+las alarmas no se activan automaticamente sino que debemos hacerlo desde el
+codigo, para ello tenemos las siguientes interfaces:
+ - ~SetRelAlarm~ : Establece una alarma de tiempo relativo
+ - ~SetAbsAlarm~ : Establece una alarma de tiempo absoluto
+ - ~CancelAlarm~ : Cancela la alarma
+Veamos un ejemplo de codigo:
+
+#+BEGIN_SRC oil
+TASK(task_B) {
+      /* some code here */
+      SetRelAlarm(ActivateTaskC, 100, 100);
+      SetRelAlarm(SetEvent1TaskA, 150, 200);
+      TerminateTask();
+}
+
+TASK(task_C) {
+      static int counter = 0;
+      /* increment counter */
+      counter++;
+
+      /* check if the task has been executed 10 times */
+      if (counter > 10) {
+            /* reset counter */
+            counter = 0;
+            /* stop alarm */
+            CancelAlarm(ActivateTaskC)
+      }
+      /* do something */
+      TerminateTask();
+}
+#+END_SRC
+
+Vemos en el ejemplo que la tarea ~task_B~ activa dos alarmas. La alarma
+~ActivateTaskC~ comienza luego de 100 ticks de clock(offset) y luego se
+ejecuta periodicamente(la alarma) cada 100 ticks de clock. La alarma
+~SetEvent1TaskA~ en cambio se activa por primera vez luego de 150 ticks de
+clock y luego se activara periodicamente cada 200 ticks de clock. Por ultimo
+vemos que la tarea ~task_C~ tiene un contador para saber internamente las
+veces que fue llamada, luego de que llega a 10 llamadas se autodesactiva ya
+que cancela la alarma que la estaba activando periodicamente.
+
+NOTE: Se le ha dado un desfaseje intensional de 50 ticks a las alarmas para
+evitar que si las mismas expiran no lo hagan en el mismo instante, con ello
+ayudamos al OS que no tenga que procesar estos dos sucesos.
+* Capitulo 7: Interrupciones
+OSEK-OS define dos tipos de interrupciones que denomina:
+ - ISR1: Las ISR category 1 son transparentes al OSEK-OS y por ello no pueden
+   utilizar casi ninguna interfaz del sistema operativo(ver
+   tablaA1:"Interfaces de OSEK-OS y contexto en el que pueden ser llamadas")
+ - ISR2: Las ISR category 2 tienen una minima intervencion del OS y por ello
+   pueden utilizar algunas interfaces del sistema operativo(ver tablaA1:
+   "Interfaces de OSEK-OS y contexto del que pueden ser llamadas")
+
+Cualquier ISR sin importar su categoria va a interrumpir a cualquier tarea
+independientemente de la prioridad de la misma. El Scheduling de las tareas,
+es realizado por el OS mientras que el de las ISR por el hardware. Sin
+importar si es una PREEMPTIVE o NONPREMPTIVE la misma va a ser interrumpida
+si se recibe una interrupcion. En caso de querer evitar esto el sistema
+operativo provee al usuario de las siguientes interfaces para deasactivar las
+interrupciones:
+ - ~DisableAllInterrupts~
+ - ~EnableAllInterrupts~
+ - ~SuspendAllInterrupts~
+ - ~ResumeAllInterrupts~
+ - ~SuspendOSInterrupts~
+ - ~ResumeOSInterrupts~
+
+ No esta permitido llamar a ninguna interfaz del sistema operativo mientras
+ las interrupciones ESTAN deshabilitadas, salvo estas mismas funciones para
+ habilitar y deshabilitar las interrupciones.
+ tambien existe la posibilidad de utilizar recursos para evitar
+ interferencias entre interrupciones y tareas:
+ - ~GetResources~
+ - ~ReleaseResource~
+Como vimos en el OSEK de la CIAA parece que no esta soportado el uso de
+recursos en una interrupcion.
+Las interrupciones deben ser configuradas en el .oil
+Ejemplo:
+
+#+BEGIN_SRC C
+ISR(UART0_handler) {
+      /* do something with the UART */
+      /* rx handling */
+
+}
+
+ISR(TIMER2_interrupt) {
+      /* do something */
+}
+#+END_SRC
+#+BEGIN_SRC oil
+ISR UART0_handler {
+      CATEGORY = 2;
+      INTERRUPT = UART0;
+      PRIORITY = 0;
+}
+
+ISR TIMER2_interrupt {
+      CATEGORY = 1;
+      INTERRUPT = TIMER2;
+      PRIORITY = 0;
+}
+#+END_SRC
+      A las interrupciones se les debe asignar un nombre el cual sera luego
+      utilizado en los archivos ~.c~. En este caso es de categoria 2. La
+      interrupcion es la ~UART0~ el nombre de las interrupciones existentes es
+      especifico de la implementacion de OSEK y de cada plataforma. A las
+      interrupciones se les puede asignar una prioridad, sin embargo depende de la
+      implementacion de OSEK-OS y de la plataforma si este parametro es evaluado y
+      si es posible configurar la prioridad seleccionada. El OSEK-OS de la CIAA NO
+      soporta prioridades en las interrupciones.
+      Los nombres de las interrupciones indicadas en el .oil bajo el parametro
+      ~INTERRUPT~ (en este ejemplo son UART0 y TIMER2) no estan definidos en el
+      estandar y tampoco el parametro en si mismo ~INTERRUPT~. Otras
+      implementaciones utilizan otro parametro.
+      En la CIAA Firmware no existe la documentacion con un mapeo entre el nombre y
+      la interrupcion. Por lo general se utiliza el nombre como lo define la
+      documentacion del microcontrolador, tambien se puede analizar el codigo
+      fuente del OSEK-OS del firmware
+            [[/home/elsuizo/Programacion/CIAA/Firmware/modules/rtos/gen/src/cortexM4/Os_Internal_Arch_Cfg.c.php][link]]
+
+
+
+** Interrupciones anidadas
+Las interfaces ~DisableAllInterrupts~ y ~EnableAllInterrupts~ no pueden ser
+llamadas recursivamente. NO es posible llamar dos veces a
+~DisableAllInterrupts~ y a continuacion dos vece a ~EnableAllInterrupts~ 
+NOTE: No se entiende muy bien esto
+
+* Capitulo8: Hookroutines
+  Las *Hookroutines* son funciones implementadas por el usuario que el sistema
+  operativo llamara en situaciones especificas. Las mismas son opcionales y se
+  pueden utilizar para agregar algun manejo deseado por el usuario en las
+  siguientes situaciones:
+ - ~StartupHook~: Es llamada durante la inicializacion del sistema operativo,
+   antes de finalizar la inicializacion del sistema
+ - ~ShutdownHook~: Es llamada al finalizar el apagado del sistema operativo
+ - ~PreTaskHook~: Es llamada antes de proceder a ejecutar una tarea
+ - ~PostTaskHook~: Es llamada al finalizar la ejecucion de una tarea
+ - ~ErrorHook~: Es llamada en caso de que alguna de las interfaces del
+   sistema operativo retorne un valor distinto de ~E_OK~
+ El usuario debe activar las rutinas que necesita en la configuracion del
+ sistema operativo y definir las funciones. El sistema operativo realiza la
+ declaracion de las mismas. Al incluir ~os.h~ se incluiran tambien las
+ declaraciones de las rutinas activadas en la configuracion.
+ 
+** StartupHook
+   |------------------------------+---------------------------------------------------------------------------------------------------------------------|
+   | Declaracion                  | ~void StartupHook(void);~                                                                                           |
+   |------------------------------+---------------------------------------------------------------------------------------------------------------------|
+   | Parametros de entrada        |                                                                                                                     |
+   | Parametros de salida         |                                                                                                                     |
+   | Parametros de entrada/salida |                                                                                                                     |
+   |------------------------------+---------------------------------------------------------------------------------------------------------------------|
+   | Retorna                      | Estandar                                                                                                            |
+   | Retorna                      | Extendida                                                                                                           |
+   |------------------------------+---------------------------------------------------------------------------------------------------------------------|
+   | Clases                       | BCC1-BCC2-ECC1-ECC2                                                                                                 |
+   |------------------------------+---------------------------------------------------------------------------------------------------------------------|
+   | Descripcion                  | La funcion debe ser definida por el usuario y es llamada por el sistema operativo al finalizar de la inicializacion |
+   |                              | del sistema operativo pero antes de iniciar el scheduler. Puede ser utilizada para la inicializacion de drivers     |
+   |                              | Durante su ejecucion las interrupciones se encuentran desactivadas                                                  |
+   |------------------------------+---------------------------------------------------------------------------------------------------------------------|
+   Ejemplo de utilizacion de ~StartupHook()~
+#+BEGIN_SRC C
+  int main(void)
+  {
+    startOS(AppMode1);
+    while(1);
+  }
+
+  void StartupHook(void) {
+    /* do something */
+  }
+
+  TASK(InitTask) {
+    /* do something */
+    TerminateTask();
+  }
+#+END_SRC
+
+#+BEGIN_SRC oil
+  OS ExampleOS {
+      STARTUPHOOK = TRUE;
+  }
+  TASK InitTask {
+      PRIORITY = 3;
+      ACTIVATION = 1;
+      STACK = 512;
+      TYPE = BASIC;
+      AUTOSTART = TRUE {
+            APPMODE = AppMode1;
+      }
+  }
+#+END_SRC
+
+
+
+* Capitulo9: Manejo de errores
+OSEK-OS ofrece dos niveles de manejo de errores que se pueden configurar en
+el archivo .oil.
+ - Extendida: es el modo que se utiliza en el desarrollo. Algunos chequeos
+   extras son realizados y retornados en caso de error.
+ - Estandar: es el modo que se utiliza en produccion. Unicamente errores muy
+   criticos son detectados y reportados.
+
+[[/home/elsuizo/Programacion/Embedded/OSEK/ejemplo_manejo_de_errores.c][ejemplo de manejo de errores]]
+
+[[/home/elsuizo/Programacion/Embedded/OSEK/ejemplo_de_manejo_errores.oil][ejemplo de manejo de errores OIL]]
+
+ya que el parametro de retorno ~E_OS_ID~ es unicamente necesario si el
+sistema fue configurado como extendido, debemos elegir uno de los dos
+esquemas, o sea que las posibilidades que tenemos serian:
+ - No utilizar nunca chequeo extendido
+ - Utilizar siempre chequeo extendido
+ - Comenzar el desarollo con chequeo extendido y en algun momento pasar al
+   chequeo estandar
+
+Existe una opcion que no resuelve completamente el problema, pero evita que
+el codigo ~else if (E_OS_ID == ret)~ sea necesario. Mediante la utilizacion
+de una ~ErrorHook~ se puede indicar al sistema de que en caso de que una
+interfaz de error se llame a una funcion definida por el usuario.
+
+[[/home/elsuizo/Programacion/Embedded/OSEK/ejemplo_manejo_errores_ERROR_HOOK.c][manejo de errores con ERROR_HOOK]]
+
+[[/home/elsuizo/Programacion/Embedded/OSEK/ejemplo_manejo_errores_ErrorHook.oil][ejemplo de manejo de errores ErrorHook]]
