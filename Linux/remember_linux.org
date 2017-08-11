@@ -38,3 +38,21 @@
             ~xprop~
 **** convertir una frase a ASCII art
             ~figlet text_a_convertir~
+** Archlinux related
+*** update archlinux
+      ~sudo pacman -Syu~
+*** Agregar yaourt a pacman(yaourt es un repositorio comunitario donde los
+usuarios agregan recetas para compilar paquetes, utilizan un pseudo makefile
+donde se listan las dependencias y los comandos para compilar el paquete.).
+Agregamos en el archivo ~/etc/pacman.conf~
+      #+begin_src emacs-lisp
+      [archlinuxfr]
+      SigLevel = Never
+      Server = http://repo.archlinux.fr/$arch
+      #+end_src
+      Luego hacemos un update de pacman e instalamos con:
+      ~sudo pacman -Sy yaourt~
+*** instalar utilidades para files
+      ~sudo pacman -S file-roller p7zip zip unzip unrar~
+*** instalar audio apps
+      ~sudo pacman -S pulseaudio pavucontrol pulseaudio-alsa alsa-utils~
