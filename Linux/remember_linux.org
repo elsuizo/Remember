@@ -56,3 +56,17 @@ Agregamos en el archivo ~/etc/pacman.conf~
       ~sudo pacman -S file-roller p7zip zip unzip unrar~
 *** instalar audio apps
       ~sudo pacman -S pulseaudio pavucontrol pulseaudio-alsa alsa-utils~
+*** Desinstalar package con pacman
+      ~sudo pacman -Rns package~
+*** Solucionar el problema de arduino makefile con avrdude
+      Primero instalamos avrdude: ~sudo pacman -S avrdude~
+      Despues suponiendo que tenemos a arduino ide en ~/.arduino_ide~,
+      borramos el binario que trae ~avrdude~, osea:
+
+      ~rm home/elsuizo/.arduino_ide/hardware/tools/avr/bin/avrdude~
+
+      Luego "linkeamos" el avrdude del sistema con el que borramos(para que
+      utilice el del sistema y no rompa las pelotas)
+
+      ~ln -s /usr/bin/avrdude /home/elsuizo/.arduino_ide/hardware/tools/avr/bin/avrdude~
+
