@@ -1,0 +1,14 @@
+* Coasa piolas para recordar de la consola!!!
+
+** Buscar una frase o palabra en archivos
+      ~ag frase~
+** Buscar una frase o palabra en muchos pdfs
+      ~for i in *.pdf; do echo $i; pdftotext "$i" - |grep -i -n 'frase';done~
+** Extraer todas las imagenes de muchooos pdfs
+      #+begin_src bash
+      for i in *.pdf; do echo $i; pdfimages -j -p "$i" base_image_output_name; done
+      #+end_src
+** Convertir imagenes de una extension a otras
+      ~convert image.png image.eps~
+** Bajar videos de youtube(funciona tambien con listas!!!)
+      ~youtube-dl url_video~
