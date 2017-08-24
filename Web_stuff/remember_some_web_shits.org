@@ -1,0 +1,39 @@
+* Cosas para recordar de web programming(todo esto es una mierda)
+
+** Instalar Node
+      ~sudo pacman -S node~
+** Instalar npm(que es el package mannager)
+      ~sudo pacman -S npm~
+** Instalar ~browser-sync~ (que sincroniza lo que modificamos)
+      ~sudo npm install -g browser-sync~
+      No me cierra mucho que sea con sudo pero bleh...
+      Para usarlo hacemos (en la carpeta que tenemos el html principal):
+      ~browser-sync start --server --directory --files "*"~
+** Sitios piolas
+*** Sitio piola para compartir codigos:
+      [[https://jsfiddle.net/][fiddle]]
+*** Sitio piola para robar codigos:
+      [[https://codepen.io/#][codePen]]
+*** Sitio piola de CSS:
+      [[][https://css-tricks.com/]]
+*** Sitio piola para saber si podemos usar algo de acuerdo al standar
+      [[https://caniuse.com/][can i use]]
+** Un poco de teoria
+      - HTML: Hyper Text Markup Language
+      - Las tecnologias que dominan la Web son:
+            - HTML: Le da la estructura
+            - CSS: Style(color, textures, ...etc)
+            - Javascript: Comportamiento
+      - header tag: Sirve para poner cosas que van en la cabecera de la
+        pagina(como un logo)
+      - h1 tag: es una cabecera o titulo, mientras el numero denota el nivel
+        en el que esta estructurado(h1, h2, h3, ...)
+      - aside tag: es un tag para colocar cosas que estan relacionadas con la
+        pagina principal
+      - section tag: para dividir en secciones la pagina
+      - article tag: generalmente van adentro de una section tag
+      - footer tag: para generar notas al pie de pagina
+      - ul tag: listas sin orden(lo unico que se permite dentro de ella es
+        un tag li)
+      - li: sirve para marcar un elemento de una lista
+      - ol: listas ordenadas
