@@ -37,3 +37,5 @@
         un tag li)
       - li: sirve para marcar un elemento de una lista
       - ol: listas ordenadas
+      - a tag: para generar hiperlinks
+      - img tag: para generar una imagen
