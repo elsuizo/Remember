@@ -70,3 +70,5 @@ Agregamos en el archivo ~/etc/pacman.conf~
 
       ~ln -s /usr/bin/avrdude /home/elsuizo/.arduino_ide/hardware/tools/avr/bin/avrdude~
 
+*** Instalar Telegram
+      ~yaourt -S telegram-desktop-bin~
