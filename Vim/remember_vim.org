@@ -97,3 +97,5 @@
  - Cuando buscamos una palabra con ~?~ en todo el file lo hacemos
    backward(hacia atras) y con ~N~ vamos hacia la proxima ocurrencia y con
    ~n~ volvemos hacia atras
+ - Para borrar todo el archivo de una ~:%d~
+ - Para copiar todo el archivo de una ~:%y~
