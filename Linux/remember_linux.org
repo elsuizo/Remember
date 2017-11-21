@@ -8,6 +8,10 @@
       ~libgcc1:i386 zlib1g:i386 libncurses5:i386~
 *** programa para saber la info de hardware
       ~apt-get install hardinfo~
+*** Para instalar Telegram
+      - Descargar la app de la pagina
+      - como root ~mv Telegram/ /opt/~
+      - enlace simbolico: ~ln -s /opt/Telegram/Telegram//usr/bin/telegram~
 ** General
 *** Salir-volver de un proceso suspendido(Ctrl-z)
       ~fg~
