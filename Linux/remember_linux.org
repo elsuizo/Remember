@@ -12,6 +12,8 @@
       - Descargar la app de la pagina
       - como root ~mv Telegram/ /opt/~
       - enlace simbolico: ~ln -s /opt/Telegram/Telegram//usr/bin/telegram~
+*** Para saber donde mierda esta instalada una libreria
+      - ~dpkg -L nombre_libreria~
 ** General
 *** Salir-volver de un proceso suspendido(Ctrl-z)
       ~fg~
