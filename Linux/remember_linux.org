@@ -44,6 +44,8 @@
             ~xprop~
 **** convertir una frase a ASCII art
             ~figlet text_a_convertir~
+** Saber el tipo de memoria RAM que tenemos
+      ~sudo dmidecode --type 17~
 ** Archlinux related
 *** update archlinux
       ~sudo pacman -Syu~
@@ -78,3 +80,7 @@ Agregamos en el archivo ~/etc/pacman.conf~
 
 *** Instalar Telegram
       ~yaourt -S telegram-desktop-bin~
+*** Instalar fortran
+      ~sudo pacman -S gcc-fortran~
+*** Instalar LaTeX
+      ~sudo pacman -S texlive-most~
