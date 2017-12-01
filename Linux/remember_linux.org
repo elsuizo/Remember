@@ -49,6 +49,10 @@
 ** Archlinux related
 *** update archlinux
       ~sudo pacman -Syu~
+*** Donwgrade a package(instalar un package viejo)
+      - Primero instalamos downgrade: ~sudo pacman -S downgrade~
+      - Luego elegimos el package que queremos instalar:
+      ~sudo downgrade nombre_libreria~
 *** Agregar yaourt a pacman(yaourt es un repositorio comunitario donde los
 usuarios agregan recetas para compilar paquetes, utilizan un pseudo makefile
 donde se listan las dependencias y los comandos para compilar el paquete.).
