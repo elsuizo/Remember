@@ -147,3 +147,6 @@ Si queremos que algunos test no sean evaluados por default podemos poner
 utilizamos el comando: ~cargo test -- --ignored~
 ** Sobre ~String~ y ~&str~
 Como sabemos Rust tiene esto dos types para representar strings
+** instalar nightly
+      - ~rustup install nightly~
+      - ~rustup default nightly~
