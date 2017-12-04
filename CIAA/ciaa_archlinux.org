@@ -22,3 +22,7 @@
             ~BOARD ?= edu_ciaa_nxp~
        - Eliminar los wanrnings de funciones no utilizadas:
                   ~CFLAGS+=-Wno-unused-function~
+ - Hacer(ya que son ejemplos con OSEK, hay que generar el codigo):
+      1. ~make clean~
+      2. ~make generate~
+      3. ~make~
