@@ -88,3 +88,5 @@ Agregamos en el archivo ~/etc/pacman.conf~
       ~sudo pacman -S gcc-fortran~
 *** Instalar LaTeX
       ~sudo pacman -S texlive-most~
+*** Instalar complementos para cmus
+      ~sudo pacman -S --asdeps libmad~
