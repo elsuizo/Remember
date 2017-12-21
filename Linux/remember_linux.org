@@ -90,3 +90,18 @@ Agregamos en el archivo ~/etc/pacman.conf~
       ~sudo pacman -S texlive-most~
 *** Instalar complementos para cmus
       ~sudo pacman -S --asdeps libmad~
+*** Instalar Arduino Makefile para programar con editor de texto
+    ~wget -O arduino.tar.xv http://arduino.cc/download.php\?f\=/arduino-1.6.8-linux64.tar.xz~
+    ~mkdir ~/.arduino_ide~
+    ~tar xf arduino.tar.xv -C ~/.arduino_ide --strip-components=1~
+    ~git clone https://github.com/sudar/Arduino-Makefile.git ~/.arduino_mk~
+    - Despues hacemos un Makefile que tenga las siguientes lineas:
+	#+begin_src emacs-lisp
+	ARDUINO_DIR = /home/elsuizo/.arduino_ide
+	ARDMK_DIR = /home/elsuizo/.arduino_mk
+	BOARD_TAG = uno
+	include $(ARDMK_DIR)/Arduino.mk
+	#+end_src
+      Donde ~ARDUINO_DIR~ es el path al arduino IDE
+      ~ARDMK_DIR~ es el path al arduino makefile repo
+      ~BOARD_TAG~ es el nombre de la placa que estamos usando
