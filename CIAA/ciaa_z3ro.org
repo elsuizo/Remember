@@ -37,3 +37,37 @@
         | RTCC  | 32 bits       | 136 años @ 1 seg tick    |                3 | EM4H                        | LFRCO, LFXO, ULFRCO |
         | BURTC | 32 bits       | 194 dias @ 3.9 mseg tick |                1 | EM4                         | LFRCO, LFXO, ULFRCO |
         |-------+---------------+--------------------------+------------------+-----------------------------+---------------------|
+      - En el ejemplo ~main_rtc_rtcc.c~ el oscilador de baja frecuencia es
+        LFRCO (Low Frequency RC Oscilator) usado como fuente para el RTC. En
+        este ejemplo el micro entra repetidamente en el modo de energia EM2 y
+        duerme por 500 ms usando el RTC. El RTC es configurado para
+        interrumpir y automaticamente resetear el contador del comparador del
+        canal 0.
+      - RTCC: Consiste en dos contadores, el contador principal de 32 bits:
+        ~RTCC_CNT~ (~RTCC_TIME~ y ~RTCC_DATE~ en modo calendario) y un
+        pre-contador de 15 bits(~RTCC_PRECNT~). Este contador puede
+        utilizarse como un contador independiente, o para generar una
+        frecuencia especifica para el contador principal. En ambas
+        configuraciones, el pre-contador puede ser usado para generar eventos
+        de comparacion o para ser capturado en el canal de comparacion como
+        resultado de un evento PRS(no se que es...).
+        El contador principal del ~RTCC~, ~RTCC_CNT~ tiene dos modos: modo
+        normal y modo calendario, en el modo normal el contador principal
+        esta disponible en ~RTCC_CNT~ y se incrementa sobre cada tick dado
+        por el pre-contador. En el modo calendario el valor del contador esta
+        disponible en ~RTCC_TIME~ y ~RTCC_DATE~ contando los segundos,
+        minutos, horas, dia del mes, dia de la semana, meses y años. Todos
+        ellos codificados en el formato BCD.
+        El ~RTCC~ tiene una interrupcion por cada una de sus tres
+        canales de ~Capture/Compare~, ~CC0~, ~CC1~ y ~CC2~. Cada uno de sus
+        canales tiene una salida ~PRS~ con acciones configurables hasta que
+        se realiza una comparacion exitosa. El flag de interrupcion ~CNTTICK~
+        es seteado en cada tiempo en que el contador principal recibe un
+        tick(cada segundo en modo calendario). En modo calendario, hay
+        tambien un flag de interrupcion que es seteado en cada minuto, hora,
+        dia, semana y mes.
+        El ~RTCC~ esta disponible en todos los modos de energia exepto para
+        ~EM4S~. Para habilitar una operacion de ~RTCC~ en ~EM4H~ el registro
+        ~EMU_EM4CTRL~ en el ~EMU~ debe ser configurado. Cualquier
+        interrupcion habilitada hara que el sistema "despierte" desde el 
+        modo ~EM4H~ si el flag ~EM4WU~ en el registro ~RTCC_EM4WUEN~
