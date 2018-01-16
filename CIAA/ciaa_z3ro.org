@@ -9,3 +9,31 @@
                   ~target remote :3333~
             - Luego podemos cargar el binario al chip:
                   ~load~
+** Application Note 0005(real time counters)
+      - El EFM32 posee varios modos para consumir menos energia, uno de ellos
+        es el modo *Energy Mode 2(EM2)*. En este modo todos los perifericos
+        de alta velocidad son apagados, mientras que los perifericos de bajo
+        consumo de energia pueden ser habilitados(LCD, LEUART, RTC). Estos
+        perifericos corren a una frecuencia del oscilador baja por lo tanto
+        su consumo de corriente es baja. El RTC puede ser utilizado para
+        mantener un seguimiento del tiempo y para "despertar" mientras el
+        micro esta en modo /sleep/
+      - El EFM32 posse tres contadores de tiempo real:
+            1. RTC: Real Time Counter
+            2. RTCC: Real Time Counter and Calendar: incluye modo calendario
+            para que sea mas facil el seguimiento de hora, dia, mes, año.
+            Tambien incluye 128 bytes de almacenamiento de datos para todos
+            los modos de energia exepto EM4S.
+            3. BURTC: Backup Real Time Counter: Usa menos energia que el RTC
+            y tambien funciona en el modo /backup power/(permite al EFM32 ser
+            alimentado por una fuente de energia de reserva si la fuente de
+            energia principal se ha dañado o le ha sucedido algo, *ver
+            Application Note 0041: /Backup Power Domain/)
+
+        |-------+---------------+--------------------------+------------------+-----------------------------+---------------------|
+        |       | Counter Width | Maximun wrap time        | Compare channels | Avaible down to energy mode | Clock Sources       |
+        |-------+---------------+--------------------------+------------------+-----------------------------+---------------------|
+        | RTC   | 24 bits       | 194 dias @ 1 seg tick    |                2 | EM2                         | LFRCO, LFXO, ULFRCO |
+        | RTCC  | 32 bits       | 136 años @ 1 seg tick    |                3 | EM4H                        | LFRCO, LFXO, ULFRCO |
+        | BURTC | 32 bits       | 194 dias @ 3.9 mseg tick |                1 | EM4                         | LFRCO, LFXO, ULFRCO |
+        |-------+---------------+--------------------------+------------------+-----------------------------+---------------------|
