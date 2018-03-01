@@ -58,3 +58,19 @@ lo que otras personas hayan comiteado
 ** Agregar user y mail
       ~git config --global user.name "elsuizo"~
       ~git config --global user.mail "mail"~
+** Generar una clave ssh para el repo
+      - primero generamos la clave ssh:
+      ~ssh-keygen -t rsa -b 4096 -C "mail_github@lalala.org"~
+      - Luego asociamos esa computadora a la cuenta de github:
+            - settings -> SSH and GPG keys
+            - ponemos un nombre para recordar en: ~title~ y copiamos la clave
+              que generamos anteriormente en el otro campo (podemos utilizar
+              xclip):
+              ~xclip -sel clip < ~/.ssh/id_rsa.pub~
+            - luego copiamos la clave que generamos(podemos utilizar xclip de
+              nuevo!!!) como clave autorizada en
+              el archivo:
+              ~/home/elsuizo/.ssh/authorized_keys~
+      - Si el repositorio fue clonado como HTTP y no como ssh debemos cambiar
+        el url de la siguiente manera:
+        ~git remote set-url origin git@github.com:user/nombre_repo.git~
