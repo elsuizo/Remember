@@ -150,3 +150,10 @@ Como sabemos Rust tiene esto dos types para representar strings
 ** instalar nightly
       - ~rustup install nightly~
       - ~rustup default nightly~
+** Palabra reservada ~prelude~
+      - ~prelude~ sirve cuando en una libreria o en la libreria estandar
+        queremos importar los traits basicos que necesitamos para que
+        funcione normalmente, asi nos ahorramos un monton de uses que siempre
+        tendriamos que utilizar en un programa
+** Pasar de stable a nightly
+      - Cuando queremos pasar de stable a nightly: ~rustup default nightly~
