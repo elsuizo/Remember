@@ -1,5 +1,4 @@
 * Cosas para recordar de Rust
-
  - la palabra reservada ~let~ se utiliza para generar un *binding* que puede
    ser declarar una variable o para otros casos. Se dice que el lado derecho
    de ~let~ es un patron y no un nombre de variable
@@ -157,3 +156,21 @@ Como sabemos Rust tiene esto dos types para representar strings
         tendriamos que utilizar en un programa
 ** Pasar de stable a nightly
       - Cuando queremos pasar de stable a nightly: ~rustup default nightly~
+* Algunas caracteristicas importantes de Rust
+ - Rust es un lenguaje *type-safe*, pero que significa???. Lo que se busca es
+   no caer en un comportamiento indefinido(Undefined behavior) lo que dice el
+   std de C99 Undefined behavior: *behavior, upon use of a nonportable or
+   erroneous program construct or of erroneous data, for which this
+   intenational Standard imposes no requirements*.
+   Consideremos el siguiente programa:
+#+BEGIN_SRC c
+int main(int argc, char** argv) {
+      unsigned long a[1];
+      a[3] = 0x7ffff7b36cebUL;
+      return 0;
+}
+#+END_SRC
+   De acuerdo con el estandar ya que se esta accediendo a un lugar en la
+   memoria del array a, ya que el comportamiento es indefinido puede hacer
+   cualquier cosa!!!. Esto es lo que se utiliza para generar vulnerabilidades
+

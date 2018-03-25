@@ -107,3 +107,8 @@ Agregamos en el archivo ~/etc/pacman.conf~
       Donde ~ARDUINO_DIR~ es el path al arduino IDE
       ~ARDMK_DIR~ es el path al arduino makefile repo
       ~BOARD_TAG~ es el nombre de la placa que estamos usando
+*** Acceder a una red wifi sin NetworkMannager(por consola)
+  - Dependencias: ~sudo pacman -S iw wpa_supplicant dialog~
+  - Primero accedemos al nombre del router al que queremos conectarnos con el
+    comando: ~ip link~
+  - Luego para conectarnos: ~sudo wifi-menu nombreDelRouter~
