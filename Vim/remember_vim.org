@@ -99,3 +99,4 @@
    ~n~ volvemos hacia atras
  - Para borrar todo el archivo de una ~:%d~
  - Para copiar todo el archivo de una ~:%y~
+ - Si queremos salir de terminal-mode en neovim ~Ctrl-\ Ctrl-n~
