@@ -174,3 +174,10 @@ int main(int argc, char** argv) {
    memoria del array a, ya que el comportamiento es indefinido puede hacer
    cualquier cosa!!!. Esto es lo que se utiliza para generar vulnerabilidades
 
+* Cuando queremos hacer un profiling de nuestro programa
+En el ~Cargo.toml~ ponemos:
+
+#+BEGIN_SRC rust
+[profile.release]
+debug = true # enable debug symbols in realese builds
+#+END_SRC
