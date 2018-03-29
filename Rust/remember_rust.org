@@ -39,7 +39,7 @@ fn diverges() -> ! {
 #+END_SRC
  - ~panic!()~ como todas las expresiones que terminan con ! es un macro que
    causa que el thread se detenga con el siguiente mensaje. Si queremos mas
-   informacion podemos correr el programa en modo 
+   informacion podemos correr el programa en modo
    ~<shell>RUST_BACKTRACE=1 cargo run~ o sino con toooda la info
    ~<shell>RUST_BACKTRACE=full cargo run~
  - Punteros a funciones: Podemos crear variables bindings que apuntan a
@@ -180,4 +180,22 @@ En el ~Cargo.toml~ ponemos:
 #+BEGIN_SRC rust
 [profile.release]
 debug = true # enable debug symbols in realese builds
+#+END_SRC
+* Cuando queremos llamar a un crate(libreria propia)
+Si nuestro crate esta en un repo de github podemos llamarlo directamente en
+nuestro ~Cargo.toml~:
+#+BEGIN_SRC toml
+[package]
+# ...
+
+[dependencies]
+# ...
+my_crate_name = { git = "https://github.com/username/project-name.git" }
+#+END_SRC
+Y si esta localmente en nuestra compu:
+
+#+BEGIN_SRC toml
+[dependencies]
+# ...
+my_crate_name = { path = "../my-crate-directory" }
 #+END_SRC
