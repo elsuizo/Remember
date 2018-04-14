@@ -112,5 +112,10 @@ Agregamos en el archivo ~/etc/pacman.conf~
   - Primero accedemos al nombre del router al que queremos conectarnos con el
     comando: ~ip link~
   - Luego para conectarnos: ~sudo wifi-menu nombreDelRouter~
+<<<<<<< HEAD
 *** Solucionar problema alacritty-gnome
       ~pacman -S fcitx fcitx-configtool~
+=======
+*** Saber la placa de video que tengo
+  - lspci | grep Grap
+>>>>>>> 05b9aaa3c1720b3c5150a9b78a7e8fcd8bf17a16
