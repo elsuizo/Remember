@@ -1,0 +1,55 @@
+* Instalando archlinux o muriendo en el intento (version UEFI)
+ - Primero hacemos la fuente mas grande y piola
+      ~setfont sun12x22~
+ - Luego hacemos un update del reloj del sistema
+      ~timedatectl set-ntp true~
+ - Luego verificamos que tenemos conexion a internet
+      ~ping -c 3 archlinux.org~
+ - Luego instalamos los programas que necesitamos para seguir
+      ~pacman -Sy neovim reflector terminus-font tmux~
+ - Luego generamos una sources-list que sea la mas rapida con reflector
+      #+begin_src bash
+      reflector --verbose --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
+      #+end_src
+ - Luego nos aseguramos que el nombre de la particion
+      ~fdisk -l~
+ - Luego hacemos las particiones para UEFI
+      - Si tenemos un disco nuevo, tenemos que generar la tabla de UEFI
+      Primero con ~parted~ entramos en una consola y hacemos las tablas con:
+            ~mklabel GPT~
+      - Luego podemos empezar con las particiones
+            ~cgdisk~, primero hacemos la particion de boot con la mierda que
+            necesita UEFI. El primero lo dejamos default, luego el
+            ~size=400M~, Luego nos pide un codigo que identifica a la
+            particion y ponemos ~ef00~. Luego me parece mas piola con la otra
+            herramienta segui, osea con ~cfdisk~, y hacemos la particion que
+            hacemos con un sistema comun
+      - Luego las formateamos:
+      A la particion EFI le hacemos: ~mkfs.msdos -F32 /dev/sda~, a la
+      particion del home le hacemos: ~mkfs.ext4 /dev/sda3~ y a la swap solo
+      le hacemos: ~mkswap /dev/sda2~ y ~swapon /dev/sda2~
+ - Luego instalamos el sistema en la particion:
+      ~pacstrap /mnt base base-devel~
+ - Luego generamos el archivo base del sistema:
+      ~genfstab /mnt >> /mnt/etc/fstab~
+ - Luego vamos ingresamos al sistema generado:
+      ~arc-chroot /mnt /bin/bash~
+ - Luego corregimos el horario:
+      #+begin_src bash
+      ln -s /usr/share/zoneinfo/America/Argentina/Buenos_Aires /etc/localtime
+      #+end_src
+ - Luego actualizamos la hora con: ~hwclock --systohc --utc~
+ - Luego hacemos lo del idioma de las aplicaciones sean:
+      ~nvim /etc/locale.gen~ y descomentamos ~en_US.UTF-8 UTF-8~ y generamos
+      la configuracion con: ~locale-gen~
+ - Luego creamos el archivo: ~nvim /etc/locale.conf~ y agregamos la siguiente
+   linea: ~LANG=en_US.UTF-8~
+ - Generamos un nuevo password para el root
+      ~passwd~
+ - Le ponemos un nombre a nuestra compu
+      ~nvim /etc/hostname~ y en ~nvim /etc/hosts~
+ - Luego hacemos las conexiones persistentes con:
+      ~systemctl enable dhcpcd~
+ - Despues hacemos el paso de el gestor de boot:(con systemd seria...)
+      ~bootctl --path=/boot install~
+ - Luego para configurar el boot v
