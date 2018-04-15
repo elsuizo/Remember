@@ -119,3 +119,5 @@ Agregamos en el archivo ~/etc/pacman.conf~
 *** Saber la placa de video que tengo
   - lspci | grep Grap
 >>>>>>> 05b9aaa3c1720b3c5150a9b78a7e8fcd8bf17a16
+*** instalar iconos piolas
+      ~yaourt numix-icon-theme~
