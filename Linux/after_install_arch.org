@@ -1,3 +1,15 @@
 * Luego de que bootea piola hacemos esto!!!
 
 
+** Instalamos el server para el display
+      ~pacman -S xorg-server xorg-xinit xorg-apps~
+** Luego instalamos el driver de la placa de video(segun la marca...)
+      ~pacman -S xf86-video-amdgpu~
+      ~pacman -S xf86-video-intel~
+      ~pacman -S xf86-video-nouveau~
+** Luego el display mannager
+      ~pacman -S lightdm lightdm-gtk-greeter~
+** Luego el desktop
+      ~pacman -S xfce4 xfce4-goodies~
+** Luego habilitamos el display mannager
+      ~systemctl enable lightdm~
