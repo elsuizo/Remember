@@ -100,3 +100,7 @@
  - Para borrar todo el archivo de una ~:%d~
  - Para copiar todo el archivo de una ~:%y~
  - Si queremos salir de terminal-mode en neovim ~Ctrl-\ Ctrl-n~
+ - Si queremos editar un archivo con el usuario root y compartir la
+   configuracion de el usuario comun:
+   ~sudo -e nombre_archivo~
+   donde tiene que estar setado el editor por defecto(neovim!!!)

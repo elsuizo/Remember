@@ -48,6 +48,11 @@
       ~timedatectl set-ntp true~
 ** Saber el tipo de memoria RAM que tenemos
       ~sudo dmidecode --type 17~
+** Cambiar la imagen de fondo de lightdm
+Primero debemos poner la/s imagenes que queremos en una carpeta que tenga
+acceso el root, por ejemplo: ~/usr/share/pixmaps~
+Luego agregamos la imagen en el archivo de configuracion:
+~/etc/lightdm/lightdm-gtk-greeter.conf~
 ** Archlinux related
 *** update archlinux
       ~sudo pacman -Syu~
