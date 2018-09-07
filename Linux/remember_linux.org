@@ -125,3 +125,11 @@ Agregamos en el archivo ~/etc/pacman.conf~
       ~yaourt numix-icon-theme~
 *** problema po2man
 cuando pasa esto hacemos ~source /etc/profile~
+*** acceder a los scripts de openocd
+Como openocd hay que instalarlo desde AUR parece que cambia la carpeta donde
+se instala siempre, ahora por ejemplo para correr en la "blue-pill" seria
+asi:
+
+      #+begin_src bash
+      openocd -f /usr/share/openocd/scripts/interface/stlink-v2.cfg -f /usr/share/openocd/scripts/target/stm32f1x.cfg
+      #+end_src
