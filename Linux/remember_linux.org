@@ -133,3 +133,9 @@ asi:
       #+begin_src bash
       openocd -f /usr/share/openocd/scripts/interface/stlink-v2.cfg -f /usr/share/openocd/scripts/target/stm32f1x.cfg
       #+end_src
+*** Para iniciar Bluetooth e instalar una GUI
+      - GUI: ~sudo pacman -S bluez bluez-utils~
+
+      - Iniciar el deamon: ~sudo systemctl start bluetooth~
+      - Si queremos que sea permanente o sea que se inicie cada vez que
+        booteamos: ~sudo systemctl enable bluetooth~
