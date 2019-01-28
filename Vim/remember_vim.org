@@ -104,3 +104,10 @@
    configuracion de el usuario comun:
    ~sudo -e nombre_archivo~
    donde tiene que estar setado el editor por defecto(neovim!!!)
+ - Cuando estamos escribiendo en espaniol podemos utilizar el spellchecker:
+       - para recorrer las palabras que estan resaltadas ~]s~
+       - para recorrer las palabras que estan resaltadas en el otro sentido:
+       ~]S~
+       - para ver las opciones de correccion de una palabra: ~z=~
+       - para agregar una palabra al diccionario: ~zg~
+       - podemos agregar una palabra que esta mal: ~zw~
