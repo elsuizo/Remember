@@ -1,0 +1,6 @@
+* Cuando queremos utilizar el stlink-v2 en Archlinux
+
+#+begin_src bash
+openocd -f /usr/share/openocd/scripts/interface/stlink-v2.cfg -f /usr/share/openocd/scripts/target/stm32f1x.cfg
+#+end_src
+
