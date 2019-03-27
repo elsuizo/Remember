@@ -1,3 +1,23 @@
 * Cosas para recordar de Meson build-system
-
 ** Hello world
+      - Primero creamos un file que sea ~meson.build~
+      - En la misma carpeta que tenemos el/los archivos que componen nuestro
+        proyecto(esto se puede modificar) que contenga lo siguiente:
+#+begin_src meson
+project('nombre_proyecto', 'lenguaje del proyecto')
+executable('nombre_ejecutable', 'nombre_archivo_proyecto')
+#+end_src
+      - Le decimos que queremos que guarde el ejecutable en una carpeta
+        aparte con el siguiente comando: ~meson builddir~
+      - Luego cuando queremos compilar el proyecto hacemos:
+      ~cd builddir~
+      ~ninja~
+      - Que resultara(si el codigo ha compilado exitosamente) en nuestro
+        binario ~nombre_ejecutable~.
+      - Luego si queremos agregar una depencia, podemos hacerlo de la
+        siguiente manera:
+#+begin_src meson
+nombre_dependencia = dependency('nombre_dependencia_lib')
+executable('nombre_ejecutable','nombre_archivo_proyecto', dependencies:
+nombre_dependencia )
+#+end_src
