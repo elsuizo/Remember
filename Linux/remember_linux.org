@@ -141,3 +141,5 @@ asi:
       - Iniciar el deamon: ~sudo systemctl start bluetooth~
       - Si queremos que sea permanente o sea que se inicie cada vez que
         booteamos: ~sudo systemctl enable bluetooth~
+*** Iniciar ssh daemon
+~sudo systemctl start sshd~
