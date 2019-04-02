@@ -44,6 +44,8 @@
             ~xprop~
 **** convertir una frase a ASCII art
             ~figlet text_a_convertir~
+**** saber el ip de una raspberry pi
+~hostname -I~
 *** sincronizar la hora
       ~timedatectl set-ntp true~
 ** Saber el tipo de memoria RAM que tenemos
