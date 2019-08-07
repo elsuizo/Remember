@@ -199,3 +199,7 @@ Y si esta localmente en nuestra compu:
 # ...
 my_crate_name = { path = "../my-crate-directory" }
 #+END_SRC
+* Tooling
+** Instalar nightly
+
+      ~rustup toolchain install nightly~
