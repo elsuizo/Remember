@@ -203,3 +203,7 @@ my_crate_name = { path = "../my-crate-directory" }
 ** Instalar nightly
 
       ~rustup toolchain install nightly~
+** bajar el codigo fuente de Rust(mas que nada para que ande con racer)
+      ~rustup component add rust-src~
+** instalar racer
+      ~cargo install racer~
