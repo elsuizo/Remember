@@ -207,3 +207,9 @@ my_crate_name = { path = "../my-crate-directory" }
       ~rustup component add rust-src~
 ** instalar racer
       ~cargo install racer~
+** Instalar otra arquitectura(por ejemplo arm)
+      ~rustup target add thumbv6m-none-eabi~ ---> Arm cortex M0
+      ~rustup target add thumbv7m-none-eabi~ ---> Arm cortex M3
+      ~rustup target add thumbv7em-none-eabi~ ---> Arm cortex M4 y M7(sin FPU)
+      ~rustup target add thumbv7em-none-eabihf~ ---> Arm cortex M4F y M7F(con
+      FPU)
