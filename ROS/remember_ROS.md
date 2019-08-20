@@ -65,3 +65,70 @@ El comando `roslaunch` es una herramienta para correr muchos nodes de una sola v
  - Son escritos en un archivo xml con extension `.launch`
  - Si no esta corriendo, `roslaunch` lanza a roscore automaticamente
 
+### Estructura de un archivo `.launch`
+
+Como ejemplo tomamos el archivo que lanzamos anteriormente que coreesponde al ejemplo: `roscpp_tutorials`
+que lo podemos encontrar con el comando: `roscd roscpp_tutorials`
+
+``` xml
+<launch>
+  <node name="listener" pkg="roscpp_tutorials" type="listener" output="screen"/>
+  <node name="talker" pkg="roscpp_tutorials" type="talker" output="screen"/>
+</launch>
+```
+
+ - `launch`: Es el elemento *root* de un archivo `.launch`
+ - `node`: cada tag `<node>` especifica un *node* que va a ser lanzado
+ - `name`: El nombre del *node* (es opcional)
+ - `pkg`: El *pkg* de donde proviene el *node*
+ - `type`: El *type* del *node* que debe corresponderse con el nombre del ejecutable
+ - `output`: Especifica donde guardar el *log*
+
+#### `args` *tags* AKA argumentos
+
+Podemos reusar archivos *.launch* ya que podemos hacer que acepten parametros, por ejemplo en el siguiente archivo:
+
+```
+<?xml version="1.0"?>
+<launch>
+
+  <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="extra_gazebo_args" default=""/>
+  <arg name="gui" default="true"/>
+  <arg name="debug" default="false"/>
+  <arg name="physics" default="ode"/>
+  <arg name="verbose" default="true"/>
+  <arg name="output" default="screen"/>
+  <arg name="world" default="gazebo_ros_range"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find gazebo_plugins)/test/test_worlds/$(arg world).world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="extra_gazebo_args" value="$(arg extra_gazebo_args)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="physics" value="$(arg physics)"/>
+    <arg name="verbose" value="$(arg verbose)"/>
+    <arg name="output" value="$(arg output)"/>
+  </include>
+
+</launch>
+```
+ - Creamos reusables archivos *.launch* con el *tag* `<arg>`, que funciona como un parametro
+ - Usamos estos parametro en una llamada a un archivo *.launch* con: `$(arg arg_name)`
+ - Cuando lanzamos un *.launch* los argumentos pueden pasarse: `roslaunch launch_file_name.launch arg_name:=valor`
+ - Podemos incluir un *.launch* dentro de un *.launch* con el *tag* `<include>` para organizar mejor projectos largos
+ `<include file="package_name/>"`
+
+
+## Simulador Gazebo
+
+ - Simula 3d objetos y su dinamica
+ - Simula una amplia variedad de sensores
+ - Incluye una base de datos de muchos robots comerciales y de ambientes conocidos
+ - Provee una interfaz directa con ROS
+ - Se puede extender con *plugins*
+ - Para correr *gazebo*: `rosrun gazebo_ros gazebo`
