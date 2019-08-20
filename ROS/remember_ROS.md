@@ -52,3 +52,16 @@ los workspaces que tenemos miramos la variable `ROS_PACKAGE_PATH` haciendo `echo
  - `devel`: Es el espacio donde los packages a ser creados son guardados. No debemos modificar nada alli
  - Si por algun motivo queremos limpiar el contenido de las carpetas `build` y `devel` lo podemos hacer con el comando: `catkin clean`
 
+## Obteniendo codigo de terceros
+
+Podemos clonar repos de terceros que estan en formato catkin pkg para luego compilarlo y usarlo, dicen que son buenas practicas hacer
+un enlace simbolico desde donde lo hemos descargado hacia nuestro workspace de catkin, nos puede servir cuando tengamos mas de un workspace
+
+`sudo ln -s path/to/packages path/to/workspace`
+
+## ROS launch
+
+El comando `roslaunch` es una herramienta para correr muchos nodes de una sola vez
+ - Son escritos en un archivo xml con extension `.launch`
+ - Si no esta corriendo, `roslaunch` lanza a roscore automaticamente
+

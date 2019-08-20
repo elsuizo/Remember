@@ -1,0 +1,9 @@
+* Cosas para recordar de ROS(Robotic Operating System)
+
+** Crear un workspace
+#+begin_src bash
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/
+catkin_make
+#+end_src
+para eso debemos tener instalado el package mannager *catking*
