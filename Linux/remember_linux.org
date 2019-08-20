@@ -145,3 +145,6 @@ asi:
         booteamos: ~sudo systemctl enable bluetooth~
 *** Iniciar ssh daemon
 ~sudo systemctl start sshd~
+*** Reinstalar grub
+      ~grub-install /dev/sda~
+      ~grub-mkconfig -o /boot/grub/grub.cfg~
