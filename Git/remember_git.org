@@ -55,6 +55,11 @@ lo que otras personas hayan comiteado
       - luego podemos hacer la fusion de lo que bajamos con nuestro repo
             ~git merge upstream/master~
       - subimos los cambios con: ~git push origin master~
+      - Una buena practica es que podemos hacer que nuestro *upstream* apunte
+        siempre al master original del cual forkeamos el repo
+        hacemos: ~git branch --set-upstream-to=upstream/master master~
+        Entonces cada vez que hagamos un ~git pull~ desde nuestro repo
+        forkeado va a bajar estas actualizaciones desde el repo forkeado
 ** Agregar user y mail
       ~git config --global user.name "elsuizo"~
       ~git config --global user.mail "mail"~
