@@ -50,6 +50,8 @@
       ~sudo chmod 777 -R nombre_carpeta~
 *** sincronizar la hora
       ~timedatectl set-ntp true~
+*** Cuando queremos usar neovim con el sudo y con la configuracion del user
+      ~sudo -E nvim archivo~
 ** Saber el tipo de memoria RAM que tenemos
       ~sudo dmidecode --type 17~
 ** Cambiar la imagen de fondo de lightdm
