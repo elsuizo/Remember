@@ -2,7 +2,7 @@
 
 ## ROS workspace environment
 
-el workspace defaul se carga con `source /opt/ros/melodic/setup.bash`
+El workspace defaul se carga con `source /opt/ros/melodic/setup.bash`
 en el proceso de instalacion creamos nuestro propio workspace, para verificar
 los workspaces que tenemos miramos la variable `ROS_PACKAGE_PATH` haciendo `echo`
 `echo $ROS_PACKAGE_PATH`
