@@ -154,3 +154,5 @@ asi:
 *** Reinstalar grub
       ~grub-install /dev/sda~
       ~grub-mkconfig -o /boot/grub/grub.cfg~
+*** Para cambiar a otros themes de Gtk podemos instalar lxappearance
+      ~sudo pacman -S lxappearance~
