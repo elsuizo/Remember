@@ -156,7 +156,7 @@ Como sabemos Rust tiene esto dos types para representar strings
         tendriamos que utilizar en un programa
 ** Pasar de stable a nightly
       - Cuando queremos pasar de stable a nightly: ~rustup default nightly~
-* Algunas caracteristicas importantes de Rust
+** Algunas caracteristicas importantes de Rust
  - Rust es un lenguaje *type-safe*, pero que significa???. Lo que se busca es
    no caer en un comportamiento indefinido(Undefined behavior) lo que dice el
    std de C99 Undefined behavior: *behavior, upon use of a nonportable or
@@ -174,14 +174,14 @@ int main(int argc, char** argv) {
    memoria del array a, ya que el comportamiento es indefinido puede hacer
    cualquier cosa!!!. Esto es lo que se utiliza para generar vulnerabilidades
 
-* Cuando queremos hacer un profiling de nuestro programa
+** Cuando queremos hacer un profiling de nuestro programa
 En el ~Cargo.toml~ ponemos:
 
 #+BEGIN_SRC rust
 [profile.release]
 debug = true # enable debug symbols in realese builds
 #+END_SRC
-* Cuando queremos llamar a un crate(libreria propia)
+** Cuando queremos llamar a un crate(libreria propia)
 Si nuestro crate esta en un repo de github podemos llamarlo directamente en
 nuestro ~Cargo.toml~:
 #+BEGIN_SRC toml
@@ -213,3 +213,5 @@ my_crate_name = { path = "../my-crate-directory" }
       ~rustup target add thumbv7em-none-eabi~ ---> Arm cortex M4 y M7(sin FPU)
       ~rustup target add thumbv7em-none-eabihf~ ---> Arm cortex M4F y M7F(con
       FPU)
+** Pequeños tips
+      - Recordemos que ~map~ "mapea" de un type a otro
