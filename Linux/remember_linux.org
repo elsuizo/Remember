@@ -156,3 +156,8 @@ asi:
       ~grub-mkconfig -o /boot/grub/grub.cfg~
 *** Para cambiar a otros themes de Gtk podemos instalar lxappearance
       ~sudo pacman -S lxappearance~
+*** Para cuando tenemos problemas al hacer un update
+Generalmente se trata de que cortamos una instalacion o un update de golpe y
+nos dice que no puede leer las databases, lo que se hace es rm un archivo que
+hace las veces de testigo de que se esta instalando algo.
+      ~sudo rm /var/lib/pacman/db.lck~
