@@ -1,0 +1,25 @@
+* Cosas para recordar de Haskell
+** Cosas de ghci
+   - Con ~:l nombre_programa.hs~ cargamos en ghci el programa
+** Cosas del lenguaje
+   - Con ~--~ hacemos comentarios de una linea y con ~{- bloque comentario -}~
+   - No podemos declarar una variable muchas veces:
+    #+begin_src haskell
+    x = 3
+    x = 7
+    #+end_src
+   - Las funciones se declaran como ~nombre_funcion parametro = definicion~ se omite el uso de parentesis, podemos declarar funciones
+     de muchos parametros de la misma manera poniendo los parametros uno al lado del otro
+   - Podemos hacer calculos intermedios en una funcion con la palabra reservada ~where~
+    #+begin_src haskell
+    heron a b c = sqrt (s * (s - a) * (s - b) * (s - c))
+	where
+	s = (a + b + c) / 2
+    #+end_src
+    Vemos que utilizamos esto para calcular ~s~ "on-the-fly". NOTE: es importante la identacion!!!
+   - *Guards* Es una azucar sintactica que nos permite escribir condicionales booleanos de manera mas clara, por ejemplo:
+	#+begin_src haskell
+	absolute x
+	    | x < 0     = -x
+	    | otherwise = x
+	#+end_src
