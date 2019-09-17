@@ -79,3 +79,7 @@ lo que otras personas hayan comiteado
       - Si el repositorio fue clonado como HTTP y no como ssh debemos cambiar
         el url de la siguiente manera:
         ~git remote set-url origin git@github.com:user/nombre_repo.git~
+      - 
+** Eliminar un branch
+      ~git branch -d branch_name~
+      ~git branch -D branch_name~
