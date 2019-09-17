@@ -9,6 +9,7 @@
       NOTE: le tengo que agregar el ~-dynamic~ en arch no se porque me
       parece que es porque no encuentra el ~Prelude~
 ** Cosas del lenguaje
+*** Basics
    - Con ~--~ hacemos comentarios de una linea y con ~{- bloque comentario -}~
    - No podemos declarar una variable muchas veces:
     #+begin_src haskell
@@ -197,3 +198,27 @@ usar la palabra reservada ~in~ para hacer uso de ella, por ejemplo:
 
    - Controlando acciones
    Podemos utilizar ~if/then/else~ con la notacion ~do~
+*** Folds
+Como vimos ~map~ es una funcion de alto orden ya que utiliza como entrada
+funciones. ~fold~ en lugar de aplicar la funcion elemento a elemento, lo que
+hace es utilizar los elementos que va calculando para combinarlos y obtener
+un resultado numerico y no una lista como devolvia ~map~. Fold es un patron
+de recursion que se puede ver cuando queremos implementar ~sum~ o ~product~
+
+      #+begin_src haskell
+      sum :: [Integer] -> Integer
+      sum [] = 0
+      sum (x:xs) = x + sum xs
+
+      product :: [Integer] -> Integer
+      product [] = 1
+      product (x:xs) = x * product xs
+
+      concat :: [Integer] -> Integer
+      concat [] = []
+      concat (x:xs) = x ++ concat xs
+      #+end_src
+**** Foldr
+Es el fold asociativo a derecha, osea que va haciendo las operaciones de
+derecha a izquierda. El valor inicial del acumulador se setea cuando se
+llama a la funcion
