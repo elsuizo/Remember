@@ -1,6 +1,13 @@
 * Cosas para recordar de Haskell
 ** Cosas de ghci
    - Con ~:l nombre_programa.hs~ cargamos en ghci el programa
+   - Cuando queremos saber el type de una expresion: ~:t expresion~
+   - Cuando queremos importar algun modulo hacemos ~:m nombre_modulo~
+** Cosas del compilador
+      - para compilar un programa comun solo con el compilador:
+      ~ghc -dynamic nombre_archivo.hs -o nombre_exe~
+      NOTE: le tengo que agregar el ~-dynamic~ en arch no se porque me
+      parece que es porque no encuentra el ~Prelude~
 ** Cosas del lenguaje
    - Con ~--~ hacemos comentarios de una linea y con ~{- bloque comentario -}~
    - No podemos declarar una variable muchas veces:
@@ -13,13 +20,180 @@
    - Podemos hacer calculos intermedios en una funcion con la palabra reservada ~where~
     #+begin_src haskell
     heron a b c = sqrt (s * (s - a) * (s - b) * (s - c))
-	where
-	s = (a + b + c) / 2
+      where
+      s = (a + b + c) / 2
     #+end_src
     Vemos que utilizamos esto para calcular ~s~ "on-the-fly". NOTE: es importante la identacion!!!
    - *Guards* Es una azucar sintactica que nos permite escribir condicionales booleanos de manera mas clara, por ejemplo:
-	#+begin_src haskell
-	absolute x
-	    | x < 0     = -x
-	    | otherwise = x
-	#+end_src
+      #+begin_src haskell
+      absolute x
+          | x < 0     = -x
+          | otherwise = x
+      #+end_src
+   - El operador ~::~ se traduce en "es del type"
+   - Para negar un valor ~Bool~ se usa la funcion ~not~ cuya *signature* es
+     ~not :: Bool -> Bool~
+   - Para convertir un ~Int~ a un ~Char~ usamos la funcion ~chr~
+   - Para convertir un ~Char~ a un ~Int~ usamos la funcion ~ord~
+*** *Type signature*
+      Para que el codigo que estamos escribiendo sea mas legible y ademas
+      ayudemos al compilador, debemos escribir la *signature* de la funcion
+      que estamos escribiendo, por ejemplo:
+
+      #+begin_src haskell
+      xor :: Bool -> Bool -> Bool
+      xor p q = (p || q) && not (p && q)
+      #+end_src
+
+      Para mejor legibilidad se suele poner por encima de la definicion de la
+      funcion
+
+*** Listas y tuplas
+      Haskell usa dos *types* para manejar muchos valores: listas y tuplas.
+**** Listas
+      - Podemos crear una lista de valores del mismo type como en muchos
+      lenguajes de programacion ~numbers = [1,1,1,1,1]~
+      - Tambien podemos usar el operador ~:~ llamado ~cons~ para construir
+        una lista, a esta manera de generar listas se la conoce como
+        *consing* (que proviene de el lenguajes de programacion Lisp)
+        Cuando hacemos un *cons* de algo sobre una lista
+        (~algo:nombre_lista~) este proceso nos devolvera una nueva lista. Y
+        asi podemos seguir "consiando" cuanto lo deseemos. Recordemos que
+        ~cons~ se evalua de derecha a izquierda
+      - ~cons~ ~:~ es como casi todo en Haskell una funcion, que espera una
+        lista del *rhs* (right hand side)
+      - Para sacar el primer y el ultimo elemento de una lista usamos las
+        funciones ~tail~ and ~head~. Pero tienen el problema de que cuando la
+        lista esta vacia el programa explota
+**** Tuplas
+      - Las tuplas se diferencian de las listas en que tienen un numero de
+      elementos definidos y son inmutables, por ello no podemos hacer un
+      *cons* a ellas por ejemplo, un ejemplo de uso podria ser almacenar los
+      valores de coordenadas x-y.
+      - Los valores de las tuplas pueden ser de distinto type
+      - Para extraer el primero y el segundo elemento de una tupla de dos
+        elementos usamos las funciones ~fst~ y ~snd~
+**** Typeclasses
+      - Es una manera de agrupar types. Como con ~traits~ en Rust
+      - Hay funciones para convertir de un typeclass a otro por ejemplo
+        ~FromIntegral~
+*** ~if~ ~then~ ~else~
+   - Siempre deben estar ambas expresiones, osea que no puedo hacer un ~if~
+     ~then~ sin un ~else~
+   - Las expresiones retornadas entre los ~then~ y ~else~ deben ser del mismo
+     *type*
+   - Como vimos podemos escribir estas expresiones con ~Guards~, por ejemplo:
+
+      #+begin_src haskell
+      my_sig_num x =
+            if x < 0
+            then -1
+            else if x > 0
+                  then 1
+                  else 0
+      #+end_src
+
+      Que lo podemos reescribir como:
+      #+begin_src haskell
+      my_sig_num x
+            | x < 0 = -x
+            | x > 0 = x
+            | otherwise 0
+      #+end_src
+*** Patern Matching
+Como en otros lenguajes de programacion podemos hacer cosas locas desde el
+punto de vista de un lenguaje imperativo, como por ejemplo:
+      #+begin_src haskell
+      pts :: Int -> Int
+      pts 1 = 10
+      pts 2 = 6
+      pts 3 = 4
+      pts 4 = 3
+      pts 5 = 2
+      pts 6 = 1
+      pts _ = 0
+      #+end_src
+
+      Osea lo que esta haciendo es Matcheado con la expresion que tiene a la
+      derecha y si se cumple lo evalua, el ~_~ es como en Rust "cualquier
+      otra cosa". Pero tambien podemos mezclar ~Guards~ con patern matching,
+      en el ejemplo que pusimos podemos hacer:
+
+      #+begin_src haskell
+      pts :: Int -> Int
+      pts 1 = 10
+      pts 2 = 6
+      pts x
+          | x <= 6 = 7 - x
+          | otherwise = 0
+      #+end_src
+
+      Osea que queda un poco mas elegante
+**** Cosas que pueden salir mal cuando hacemos patern martching
+
+    - Si ponemos un patron que matchea con cualquier cosa ~_~ antes de las
+      condiciones mas especificas
+    - Si ningun patron matchea, un error nos sera devuelto
+*** ~let~ en codigo
+Podemos utilizar la palabra reservada ~let~ dentro de una funcion para
+declarar variables locales que nos ayuden a no repetir expresiones y luego
+usar la palabra reservada ~in~ para hacer uso de ella, por ejemplo:
+
+      #+begin_src haskell
+      roots a b c =
+            let sdisk = sqrt (b * b - 4 * a * c)
+            in ((-b + sdisk) / (2 * a),
+               (-b - sdisk)  / (2 * a))
+      #+end_src
+
+      En lugar de escribir la expresion para la raiz dos veces
+*** Aplicando composicion de funciones
+
+    - Como sabemos podemos aplicar composicion de funciones como ~F(g(x))~
+    ~F (g x)~
+    - Con el operador ~.~ podemos componer funciones tambien simplemente
+      poniendo un punto entre las funciones que queremos componer:
+      ~(F . g) x~ que se asemeja mucho a la notacion matematica!!!
+*** Importando codigo de librerias
+    - Cuando queremos importar codigo de la libreria estandar hacemos por ejemplo: ~import Data.List~
+    - El codigo que se importa automaticamente con la libreria core es el
+      *prelude*, en el ejemplo anterior importamos el modulo ~Data.List~ de
+      la libreria estandar con lo cual tenemos todos los types y funciones
+      que hay dentro de el accesibles como por ejemplo la funcion
+      ~permutations~
+    - Por ejemplo utilizando las funciones de Prelude podemos escribir:
+      #+begin_src haskell
+      reWords :: String -> String
+      reWords input = (unwords . reverse . words) input
+      #+end_src
+      por ejemplo las funciones que estan en el Prelude:
+
+      https://downloads.haskell.org/~ghc/latest/docs/html/libraries/index.html
+
+    - Podemos buscar librerias directamente con un buscador especializado
+      llamado Hoogle:
+
+      https://hoogle.haskell.org/
+*** IO
+   - Cuando utilizamos la funcino por ejemplo: ~putStrLn~ cuya *signature* es
+     la siguiente: ~putStrLn :: String -> IO ()~ vemos que encontramos como
+     salida el type ~IO ()~, ~IO~ se utiliza para cualquier salida que
+     invoque una salida hacia el exterior del programa. Deberiamos leer a
+     ~IO ()~ "como una accion que retorna ~()~". Algunos ejemplos mas de
+     usois de ~IO~:
+     - Imprimir un String en la pantalla
+     - Leer una String del teclado
+     - Escribir datos a un archivo
+   - ~main do~
+   ~do~ nos permite poner varias acciones juntas: por ejemplo el siguiente
+   programa:
+
+      #+begin_src haskell
+            main = do
+               putStrLn "Por favor ingresa tu nombre:"
+               name <- getLine
+               putStrLn ("Hola, " ++ name ++ ", como has estado???")
+      #+end_src
+
+   - Controlando acciones
+   Podemos utilizar ~if/then/else~ con la notacion ~do~
