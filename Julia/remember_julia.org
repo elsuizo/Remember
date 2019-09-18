@@ -1,0 +1,9 @@
+* Cosas para recordar del lenguaje de programacion Julia
+** Tooling
+*** Cuando queremos activar un Pkg
+      - Para activar un pkg hacemos en el entorno Pkg, osea presionando ~]~
+        en el repl, con el comando ~activate~ y el path del Pkg
+** Cosas del lenguaje
+*** Assertions
+Cuando queremos hacer un Assertions podemos utilizar la siguiente macro:
+~@assert condition "mensaje de error"~
