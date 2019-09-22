@@ -1,0 +1,8 @@
+* Cosas para recordar de Python
+
+** Tooling
+
+*** ~pip~
+para instalar dependencias de un ejecutable que estan dadas por el archivo:
+~requeriments.txt~ con ~pip~ hacemos:
+~pip install -r requeriments.txt~

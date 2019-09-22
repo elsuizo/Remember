@@ -7,3 +7,14 @@
 *** Assertions
 Cuando queremos hacer un Assertions podemos utilizar la siguiente macro:
 ~@assert condition "mensaje de error"~
+** Cosas especificas de Pkgs
+*** Plots.jl
+      - Instalando: ~add Plots~
+      - Podemos modificar un plot mediante los *atributos* que estan
+        documentados en:
+      - Los atributos se pasan como *keyword*, por ejemplo:
+      ~plot(variable, color = :blue)~
+      - Podemos listar a todos los atributos con el siguiente truco:
+      ~plotattr(:Series)~, que son los atributos que hay para ~:Series~
+      Lo mismo seria para *markersize*:
+      ~plotattr("ms")~
