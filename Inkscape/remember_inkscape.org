@@ -1,0 +1,10 @@
+* Cosas para recordar de Inkscape
+** Renderizar ecuaciones de latex
+   Podemos insertar ecuaciones de latex, pero necesitamos tener instalado
+   los siguientes packages:
+
+   ~sudo pacman -S texlive-most pstoedit~
+
+   Una vez que esten estos packages instalados los reconocera solo y podemos
+   ir a ~Extensions--->Render--->Latex~
+
