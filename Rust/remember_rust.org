@@ -199,6 +199,8 @@ Y si esta localmente en nuestra compu:
 # ...
 my_crate_name = { path = "../my-crate-directory" }
 #+END_SRC
+** Pequeños tips
+      - Recordemos que ~map~ "mapea" de un type a otro
 * Tooling
 ** Instalar nightly
 
@@ -211,7 +213,5 @@ my_crate_name = { path = "../my-crate-directory" }
       ~rustup target add thumbv6m-none-eabi~ ---> Arm cortex M0
       ~rustup target add thumbv7m-none-eabi~ ---> Arm cortex M3
       ~rustup target add thumbv7em-none-eabi~ ---> Arm cortex M4 y M7(sin FPU)
-      ~rustup target add thumbv7em-none-eabihf~ ---> Arm cortex M4F y M7F(con
-      FPU)
-** Pequeños tips
-      - Recordemos que ~map~ "mapea" de un type a otro
+      ~rustup target add thumbv7em-none-eabihf~ ---> Arm cortex M4F y M7F(con FPU)
+** Usar una libreria local
