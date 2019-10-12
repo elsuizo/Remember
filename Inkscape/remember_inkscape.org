@@ -5,6 +5,9 @@
 
    ~sudo pacman -S texlive-most pstoedit~
 
+   Tambien necesitamos tener instalado una libreria de python2
+
+   ~sudo pacman -S python2-lxml~
+
    Una vez que esten estos packages instalados los reconocera solo y podemos
    ir a ~Extensions--->Render--->Latex~
-
