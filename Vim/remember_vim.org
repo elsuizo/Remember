@@ -111,3 +111,10 @@
        - para ver las opciones de correccion de una palabra: ~z=~
        - para agregar una palabra al diccionario: ~zg~
        - podemos agregar una palabra que esta mal: ~zw~
+ - Si queremos guardar el output de un comando en un file(por ejemplo redir)
+
+      ~redir > file_name~
+
+      ~:silent nmap~
+
+      ~redir END~
