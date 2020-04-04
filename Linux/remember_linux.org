@@ -161,3 +161,5 @@ Generalmente se trata de que cortamos una instalacion o un update de golpe y
 nos dice que no puede leer las databases, lo que se hace es rm un archivo que
 hace las veces de testigo de que se esta instalando algo.
       ~sudo rm /var/lib/pacman/db.lck~
+*** Elegir el navegador preferido
+      - ~xdg-settings set default-web-browser firefox.desktop~

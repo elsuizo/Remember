@@ -1,0 +1,8 @@
+* Cosas para recordar de Typescript
+
+** Compilar .ts file
+
+      - Podemos compilar el codigo .ts con el compilador tsc
+      ~tsc file_name.ts~
+      - Podemos compilar el codigo .ts y correr el .js generado con el
+        comando ~ts-node file_name.ts~

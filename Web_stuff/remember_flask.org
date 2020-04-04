@@ -1,0 +1,26 @@
+* Cosas para recordar de Flask
+** Cosas del framework
+*** ~route~
+      Nos permite especificar como se accede a las distintas areas de nuestra
+      app(o cuando armamos una API a distintas areas de ella). El ejemplo clasico
+      es: ~@app.route('/')~ que en este caso accedera al root.
+      En las funciones que definimos despues de ~route~ podemos retornar un
+      ~string~ directamente que se convierte a html automaticamente. Cuando
+      queremos retornar un ~json~ podemos utilizar ~jsonify~
+*** Metodos para ~route~
+      Cuando llamamos a ~route()~, por default utiliza el metodo ~GET~, si
+      queremos que acepte mas metodos hacemos:
+
+      #+begin_src python3
+      @app.route('/', methods=['GET', 'POST', 'PUT'])
+      #+end_src
+
+*** Variables en ~route()~
+      - Las variable se agregan en ~route('/home/<var_name>')~
+      - Luego tenemos que usar la variable que esta entre ~<>~ en la funcion
+        asociada con ese ~route()~
+      - Podemos cambiar el type de la variable, por ejemplo si queremos un
+        int hacemos: ~app.route('/home/<int:var_name>')~
+** Tooling
+      - Si no queremos reiniciar el server cada vez que cambiamos algo,
+        podemos poner cuando ejecutamos ~app.run(debug=True)~

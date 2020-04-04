@@ -118,3 +118,5 @@
       ~:silent nmap~
 
       ~redir END~
+ - Si queremos hacer un paste en la linea de comandos
+      ~Ctrl+r+"~

@@ -18,6 +18,8 @@
       [[][https://css-tricks.com/]]
 *** Sitio piola para saber si podemos usar algo de acuerdo al standar
       [[https://caniuse.com/][can i use]]
+*** Sitio piola para 'fetchear' algo de data(json)
+      [[https://jsonplaceholder.typicode.com/][sitio]]
 ** Un poco de teoria
       - HTML: Hyper Text Markup Language
       - Las tecnologias que dominan la Web son:
