@@ -120,3 +120,5 @@
       ~redir END~
  - Si queremos hacer un paste en la linea de comandos
       ~Ctrl+r+"~
+ - Si queremos abrir neovim/vim sin la configuracion hacemos:
+      ~nvim -u NONE lalala~
