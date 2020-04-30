@@ -54,6 +54,8 @@
       primero preparamos una carpeta:
       ~sudo mkdir /mnt/iso~
       ~sudo mount /path/to/iso /mnt/iso -o loop~
+*** Cuando queremos saber cuales son las putas fuentes que tenemos instaladas
+      ~fc-list~
 *** Cuando queremos usar neovim con el sudo y con la configuracion del user
       ~sudo -E nvim archivo~
 ** Saber el tipo de memoria RAM que tenemos
