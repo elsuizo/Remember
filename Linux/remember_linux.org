@@ -58,6 +58,9 @@
       ~fc-list~
 *** Cuando queremos usar neovim con el sudo y con la configuracion del user
       ~sudo -E nvim archivo~
+*** Cuando queremos escribir un comando que es largo en bash o zsh
+      ~Ctrl-x~ + ~Ctrl-e~ y entramos en el editor de texto que tengamos
+      asignado (obvio nvim)
 ** Saber el tipo de memoria RAM que tenemos
       ~sudo dmidecode --type 17~
 ** Cambiar la imagen de fondo de lightdm
