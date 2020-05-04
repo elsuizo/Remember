@@ -46,6 +46,8 @@
             ~figlet text_a_convertir~
 **** saber el ip de una raspberry pi
 ~hostname -I~
+*** Suspender pulseaudio para utilizar jack
+      ~pasuspender -- jackd -rd alsa~
 *** Cuando tenemos una carpeta o archivo sin permisos para nada(con candado)
       ~sudo chmod 777 -R nombre_carpeta~
 *** sincronizar la hora
