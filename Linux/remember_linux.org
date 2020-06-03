@@ -63,6 +63,12 @@
 *** Cuando queremos escribir un comando que es largo en bash o zsh
       ~Ctrl-x~ + ~Ctrl-e~ y entramos en el editor de texto que tengamos
       asignado (obvio nvim)
+*** Cuando queremos hacer un symlink
+Siempre tenemos que poner el path completo de las cosas que estamos ligando
+sino vamos a tener un "dangling" symlink.
+~sudo ln -s /home/elsuizo/Dev/julia-1.4.0/bin/julia /usr/local/bin~
+** Cuando queremos crear carpetas recursivamente
+      - ~mkdir -p folder_name/folder_name2/forder_name3~
 ** Saber el tipo de memoria RAM que tenemos
       ~sudo dmidecode --type 17~
 ** Cambiar la imagen de fondo de lightdm
