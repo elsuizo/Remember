@@ -40,22 +40,30 @@ los workspaces que tenemos miramos la variable `ROS_PACKAGE_PATH` haciendo `echo
  - Para publicar un message a un topic: `rostopic pub topic type args`
  - Podemos verificar el type de un topic: `rostopic type topic_name`
  - Podemos ver el mensaje de un topic: `rostopic echo topic_name`
- - Podemos analizar la frecuencia de actualizacion de un topic: `rostopic hz topic_name`
+ - Podemos analizar la frecuencia de actualizacion de un topic:
+   `rostopic hz topic_name`
 
 ## ROS making packages
 
- - `catking` es el sistema para generar packages
+ - `catking` es el sistema para manejar packages
  - Dicen que es mejor hacer `catkin build` en lugar de `catking_make`
- - El workspace de catking contiene los siguientes espacios: `src`, `build` y `devel`
- - `src`: Es el espacio donde se encuentra el codigo fuente. Aca es donde podemos clonar, crear y editar el codigo. Osea que debemos trabajar alli
- - `build`: Es el espacio en donde `cmake` crea los packages. No debemos modificar nada alli
- - `devel`: Es el espacio donde los packages a ser creados son guardados. No debemos modificar nada alli
- - Si por algun motivo queremos limpiar el contenido de las carpetas `build` y `devel` lo podemos hacer con el comando: `catkin clean`
+ - El workspace de catking contiene los siguientes espacios: `src`, `build` y
+   `devel`
+ - `src`: Es el espacio donde se encuentra el codigo fuente. Aca es donde
+   podemos clonar, crear y editar el codigo. Osea que debemos trabajar alli
+ - `build`: Es el espacio en donde `cmake` crea los packages. No debemos
+   modificar nada alli
+ - `devel`: Es el espacio donde los packages a ser creados son guardados. No
+   debemos modificar nada alli
+ - Si por algun motivo queremos limpiar el contenido de las carpetas `build` y
+   `devel` lo podemos hacer con el comando: `catkin clean`
 
 ## Obteniendo codigo de terceros
 
-Podemos clonar repos de terceros que estan en formato catkin pkg para luego compilarlo y usarlo, dicen que son buenas practicas hacer
-un enlace simbolico desde donde lo hemos descargado hacia nuestro workspace de catkin, nos puede servir cuando tengamos mas de un workspace
+Podemos clonar repos de terceros que estan en formato catkin pkg para luego
+compilarlo y usarlo, dicen que son buenas practicas hacer un enlace simbolico
+desde donde lo hemos descargado hacia nuestro workspace de catkin, nos puede
+servir cuando tengamos mas de un workspace
 
 `sudo ln -s path/to/packages path/to/workspace`
 
@@ -65,7 +73,7 @@ El comando `roslaunch` es una herramienta para correr muchos nodes de una sola v
  - Son escritos en un archivo xml con extension `.launch`
  - Si no esta corriendo, `roslaunch` lanza a roscore automaticamente
 
-### Estructura de un archivo `.launch`
+## Estructura de un archivo `.launch`
 
 Como ejemplo tomamos el archivo que lanzamos anteriormente que coreesponde al ejemplo: `roscpp_tutorials`
 que lo podemos encontrar con el comando: `roscd roscpp_tutorials`
@@ -84,7 +92,7 @@ que lo podemos encontrar con el comando: `roscd roscpp_tutorials`
  - `type`: El *type* del *node* que debe corresponderse con el nombre del ejecutable
  - `output`: Especifica donde guardar el *log*
 
-#### `args` *tags* AKA argumentos
+## `args` *tags* AKA argumentos
 
 Podemos reusar archivos *.launch* ya que podemos hacer que acepten parametros, por ejemplo en el siguiente archivo:
 
@@ -117,16 +125,24 @@ Podemos reusar archivos *.launch* ya que podemos hacer que acepten parametros, p
 
 </launch>
 ```
- - Creamos reusables archivos *.launch* con el *tag* `<arg>`, que funciona como un parametro
- - Usamos estos parametro en una llamada a un archivo *.launch* con: `$(arg arg_name)`
- - Cuando lanzamos un *.launch* los argumentos pueden pasarse: `roslaunch launch_file_name.launch arg_name:=valor`
- - Podemos incluir un *.launch* dentro de un *.launch* con el *tag* `<include>` para organizar mejor projectos largos
- `<include file="package_name/>"`
+
+ - Creamos reusables archivos *.launch* con el *tag* `<arg>`, que funciona como
+   un parametro
+ - Usamos estos parametro en una llamada a un archivo *.launch* con:
+   `$(arg arg_name)`
+ - Cuando lanzamos un *.launch* los argumentos pueden pasarse:
+
+   `roslaunch launch_file_name.launch arg_name:=valor`
+
+ - Podemos incluir un *.launch* dentro de un *.launch* con el *tag* `<include>`
+   para organizar mejor projectos largos
+
+   `<include file="package_name/>"`
 
 
 ## Simulador Gazebo
 
- - Simula 3d objetos y su dinamica
+ - Simula objetos 3D y su dinamica
  - Simula una amplia variedad de sensores
  - Incluye una base de datos de muchos robots comerciales y de ambientes conocidos
  - Provee una interfaz directa con ROS
