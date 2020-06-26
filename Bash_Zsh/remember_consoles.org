@@ -22,3 +22,5 @@
       ~comando > out.txt~
 
       ~comando >> out.txt~  en este caso hacemos un "append"
+** Cuando queremos saber cuales son los nombres de nuestros discos
+      ~lsblk~
