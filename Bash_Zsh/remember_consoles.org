@@ -18,3 +18,7 @@
       #+end_src
 ** Encontrar todos los archivos de cierta extension
       ~find . -type f -name "*.extesion_requerida"~
+** Cuando queremos guardar la salida de un comando a un file
+      ~comando > out.txt~
+
+      ~comando >> out.txt~  en este caso hacemos un "append"
