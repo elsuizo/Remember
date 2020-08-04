@@ -13,3 +13,4 @@ de reconexion o algo asi.(fuente: http://nuttx.org/doku.php?id=wiki:howtos:jtag-
  - Sin soltar el reset abrimos una conexion con openocd mediante el ~telnet~,
    osea: ~telnet 127.0.0.1 4444~ (en otra consola obvio...)
  - Una vez conectados ingresamos el comando: ~reset halt~
+

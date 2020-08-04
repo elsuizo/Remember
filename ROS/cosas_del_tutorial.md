@@ -61,8 +61,8 @@ El `package` mas simple que podamos hacer debe tener una minima estructura como 
 
 ```bash
    my_package/
-   CMakeLists.txt
-   package.xml
+      CMakeLists.txt
+      package.xml
 ```
 
 ### `packages` en un *workspace* de catkin
@@ -130,7 +130,8 @@ y cuando queremos toda la lista de dependencia tanto la que tiene nuestro
  - Messages: Son un type de ROS usado cuando nos subscribimos o publicamos en
    un `topic`: https://wiki.ros.org/Messages
 
- - `topic`: Nodos a los cuales nos podemos subscribir para recibir mensajes:
+ - `topic`: es el canal de comunicacion al cual nos podemos subscribir o enviar
+   mensajes (`message`)
    https://wiki.ros.org/Topics
 
  - `Master`: nombre de los servicios de ROS(lo usamos para que los nodos se
@@ -191,7 +192,7 @@ cuando lo lanzamos si queremos
 
 los nodos `tutlesim_node` y `turtle_teleopt_key` se comunican mediante un
 `topic` de ROS, `turtle_teleopt_key` publica las teclas que estamos presionando
-en un `topic`, mientras que `turtlesim` se subscribe a el mismo `topic` para
+en un `topic`, mientras que `turtlesim_node` se subscribe a el mismo `topic` para
 recibir los valores de las teclas.
 
 para correr `turtle_teleopt_key` hacemos:
@@ -246,5 +247,37 @@ node) hacemos:
 Usando `rostopic hz [topic]` podemos ver a la tasa a la que se esta publicando
 los datos
 
-## Entendiendo los servicios y paramtros de ROS
+## Entendiendo los servicios y paramtros de ROs
+
+Los _service_s son otra manera que los nodos pueden comunicarse unos con otros,
+estos permiten a los _nodes_ enviar una _request_ y recibir un _response_
+
+### Usando `rosservice`
+
+`rosservice` puede facilmente adjuntar a un _framework_ de ROS con servicios.
+`rosservice` tiene muchos comandos que pueden ser utilizados sobre _service_s como
+mostramos a continuacion:
+
+```text
+rosservice list      (imprime la informacion sobre los servicios activos)
+rosservice call      (llama al servicio con los args que le proveemos)
+rosservice type      (imprime el type del servicio)
+rosservice find      (encuentra el servicio por el type)
+rosservice uri       (imprime el servicio ROSPC uri)
+```
+
+## Usando `rosparam`
+
+`rosparam` nos permite guardar y manipular datos sobre el server de parametros de
+ROS, este puede guardar enteros, floats, Strings, boolean y diccionarios. `rosparam`
+utiliza YAML como sintaxis, los comandos mas utilizados son:
+
+```text
+rosparam set    (setea los parametros)
+rosparam get    (getter de parametros)
+rosparam load   (carga los parametros desde un archivo)
+rosparam dump   (dumpea parametros a un archivo)
+rosparam delete (borra parametros)
+rosparam list   (lista los nombres de los parametros)
+```
 
