@@ -1,10 +1,24 @@
 # Cosas para recordar del tutorial oficial
 
- - Existen dos packages mannager(deben haber mas pero los mas usados son estos)
-   - `catking`
-   - `rosbuild`
+## Creando un workspace de ROS
+
+Primero creamos la carpeta en donde queremos tener el _workspace_:
+
+`mkdir -p ~/name_folder/src`
+
+Una vez que tenemos las carpetas listas hacemos, dentro de la misma:
+
+`catkin_make`
+
+Con eso hemos creado el _workspace_ de catkin, para activarlo en la sesion de
+`bash` o `zsh` hacemos `source devel/setup.bash` o `source devel/setup.zsh`
+(segun sea el tipo de consola que utilizemos)
 
 ## Trabajando con Packages
+
+- Existen dos packages mannager(deben haber mas pero los mas usados son estos)
+   - `catking`
+   - `rosbuild`
 
  - Los packages son la unidada de organizacion de software de ROS. Cada package
    contiene librerias, ejecutables, scripts y mas cosas
