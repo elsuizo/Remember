@@ -261,7 +261,7 @@ node) hacemos:
 Usando `rostopic hz [topic]` podemos ver a la tasa a la que se esta publicando
 los datos
 
-## Entendiendo los servicios y paramtros de ROs
+## Entendiendo los servicios y paramtros de ROS
 
 Los _service_s son otra manera que los nodos pueden comunicarse unos con otros,
 estos permiten a los _nodes_ enviar una _request_ y recibir un _response_
@@ -280,6 +280,63 @@ rosservice find      (encuentra el servicio por el type)
 rosservice uri       (imprime el servicio ROSPC uri)
 ```
 
+#### `rosservice list`
+
+La lista de comando que el node `turtlesim` provee nueve servicios:
+
+```text
+/clear
+/kill
+/reset
+/rosout/get_loggers
+/rosout/set_logger_level
+/spawn
+/turtle1/set_pen
+/turtle1/teleport_absolute
+/turtle1/teleport_relative
+/turtlesim/get_loggers
+/turtlesim/set_logger_level
+```
+Vemos que tambien se incluye a los nodes que pertenecen al node `rosout`
+
+Podemos ver cual es el type de un node como vimos con el comando: `rosservice type [service]`
+
+que en el caso del service `clear` nos devuelve: `std_srvs/Empty`
+
+Lo que significa que este servicio esta vacio osea que cuando una llamada es hecha
+no se necesitan argumentos(por ejemplo: no se envia datos cuando hacemos un _request_
+y no revibimos datos cuando tenemos una respuesta), vendria a ser que `type` the
+da cuales son los types que tenes que pasarle al _service_ para que ande
+
+#### usando `rosservice call`
+
+`rosservice call [service] [args]`
+
+Por ejemplo para el service anterior podemos hacer:
+
+`rosservice call /clear` (que lo unico que hace en este caso es limpiar la pantalla de la
+tortuga)
+
+Podemos ver un caso mas interesante en el que el `service` toma parametros, por
+ejemplo el `service` `spawm`:
+
+`rosservice type /spawn | rossrv show`
+
+que nos muestra:
+
+```text
+float32 x
+float32 y
+float32 theta
+string name
+---
+string name
+```
+Que como podemos deducir lo que hace este `service` es crear una nueva tortuga(que no se te escape)
+en una dada posicion y orientacion(el nombre es opcional), entonces llamamos a `call`:
+
+`rosservice call /spawn 2 2 0.0 ""`
+
 ## Usando `rosparam`
 
 `rosparam` nos permite guardar y manipular datos sobre el server de parametros de
@@ -294,4 +351,52 @@ rosparam dump   (dumpea parametros a un archivo)
 rosparam delete (borra parametros)
 rosparam list   (lista los nombres de los parametros)
 ```
+Podemos ver cuales son los parametros que estan actualmente en el server con
+`rosparam list`:
 
+```text
+/rosdistro
+/roslaunch/uris/host_nxt__43407
+/rosversion
+/run_id
+/turtlesim/background_b
+/turtlesim/background_g
+/turtlesim/background_r
+```
+
+podemos cambiar alguno de estos parametros usando `rosparam set`:
+
+`rosparam set [param_name]`
+
+`rosparam get [param_name]`
+
+por ejemplo podemos cambiar el color del canal rojo del fondo donde camina la tortuga(que nunca
+se te escape)
+
+`rosparam set /turtlesim/background_r 150`
+
+luego para que el cambio que hicimos tenga efecto tenemos que llamar al `service`
+`/clear`
+
+`rosservice call /clear`
+
+Tambien podemos usar `/` para ver todos los parametros que estan en el server
+
+`rosparam get /`
+
+Podriamos querer guardar estos parametros en un archivo para despues volver a
+cargarlos, podemos hacerlo con:
+
+`rosparam dum [filename] [namespace]`
+
+`rosparam load [filename] [namespace]`
+
+Por ejemplo:
+
+`rosparam dump params.yaml`
+
+Y podriamos cargar estos parametros en un nuevo `namespace` (`copy_turtle`)
+
+`roparam load params.yaml copy_turtle`
+
+`rosparam get /copy_turtle/turtlesim/background_b`
