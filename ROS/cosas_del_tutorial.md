@@ -400,3 +400,898 @@ Y podriamos cargar estos parametros en un nuevo `namespace` (`copy_turtle`)
 `roparam load params.yaml copy_turtle`
 
 `rosparam get /copy_turtle/turtlesim/background_b`
+
+
+## Usando `rqt_console` y `roslaunch`
+
+### Usando `rqt_concole` y `rqt_logger_level`
+
+con `rqt_console` podemos adjuntar un framework de login para mirar las salidas
+de diferentes nodos. `rqt_logger_level` nos permite setear cuando y como se ven
+esas salidas (`DEBUG`, `WARN`, `INFO` y `ERROR`)
+
+Por ejemplo vemos como son las salidas con el node `turtlesim` que venimos utilizando
+
+para poder utilizar esta herramienta debemos llamar al package y a su node con
+`rosrun`:
+
+`rosrun rqt_console rqt_console`
+
+`rosrun rqt_logger_level rqt_logger_level`
+
+o sea que es una mas amigable de mirar los logs de los nodes
+
+los logs tienen niveles de prioridades como sigue:
+
+ 1. `Fatal`
+ 2. `Error`
+ 3. `Warn`
+ 4. `Info`
+ 5. `Debug`
+
+Osea que si ha sucedido un msg `Error` y despues un `Fatal` primero vemos el `Fatal`
+
+## Usando `roslaunch`
+
+Podemos comenzar un node que se definio en un file del tipo `.launch`
+
+`roslaunch [package] [filename.launch]`:
+
+Con el package ejemplo que hicimos al principio que se llamaba `beginner_tutorials`
+podemos ir a esa carpeta como vimos con `roscd` una vez que estamos en ella vamos
+a crea un directorio para los archivos `.launch`
+
+```bash
+   mkdir launch`
+   cd launch
+```
+Este paso no es necesario(ya que `roslaunch` se fija automaticamente en los `.launch`)
+pero es una buena practica mantener el package ordenado
+
+
+### El archivo de `.launch`
+
+Vamos a crear el siguiente archivo llamado `turtlemimic.launch`
+
+```xml
+<launch>
+
+  <group ns="turtlesim1">
+    <node pkg="turtlesim" name="sim" type="turtlesim_node"/>
+  </group>
+
+  <group ns="turtlesim2">
+    <node pkg="turtlesim" name="sim" type="turtlesim_node"/>
+  </group>
+
+  <node pkg="turtlesim" name="mimic" type="mimic">
+    <remap from="input" to="turtlesim1/turtle1"/>
+    <remap from="output" to="turtlesim2/turtle1"/>
+  </node>
+
+</launch>
+```
+
+### El `.launch` explicado
+
+Este archivo del estilo `.xml` tiene "tags" el primero que vemos es `<launch>`
+que es como identificamos un archivo `launch`. Luego comenzamos dos grupos con
+espacio de nombres(`namespaces`) `turtlesim1` y `turtlesim2`, esto lo que hace
+es que podamos comenzar dos simulaciones sin conflictos de nombres
+
+
+Aquí comenzamos el nodo mimico con los temas de entrada y salida renombrados a
+`turtlesim1` y `turtlesim2`. Este cambio de nombre hara que `turtlesim2` imite a
+`turtlesim1`.
+
+Osea es como hacer con simulink con una flecha la salida de un bloque con la
+entrada de otro(muuuy buenooo)
+
+### Corriendo el archivo con `roslaunch`
+
+`roslaunch beginner_tutorials turtlemimic.launch`
+
+## Usando `rosed`
+
+`rosed` es parte de la suite `rosbash`. Este permite editar directamente un `file`
+que esta en un `package` usando el nombre de `package`
+
+`rosed [package_name] [filename]`
+
+ejemplo: `rosed roscpp Logger.msg`
+
+Y lo que hace este comando es abrir nuestro editor de texto(neovim) con el file
+que le pasamos
+
+## Creando un `msg` en ROS y un `srv`
+
+Vamos a ver como crear y construir archivos `msg` y un `srv`
+
+### Introduccion a los `msg` y los `srv`
+
+ - archivos `msg` son simples archivos de texto que describen los fields de un
+   mensaje en ROS. Son usads para generar codigo cuando compilamos un package
+ - un archivo `srv` describe un servicio. Esta compuesto de dos partes: un `request`
+   y un `response`
+
+los archivos `msg` son guardados en los carpeta `msg` de un package y los `srv` en
+en la carpeta `srv`, los `msg` son simples archivos de texto con un type y un nombre
+por linea. Los types que se pueden utilizar son:
+
+ - `int8`, `int16`, `int32`, `int64`, `uint`
+ - `float32`, `float64`
+ - `string`
+ - `time`, `duration`
+ - otros archivos de `msg`
+ - array de largo variable: `array[]` y de largo fijo: `array[C]`
+
+Existe tambien un type especial en ROS que es `Header` este contiene datos del
+tiempo, informacion de los frames, que es comunmente utilizado en ROS
+
+Podemos ver casi siempre en un archivo `msg` que tiene este type `Header` en la
+cabecera del archivo, por ejemplo veamos un `msg` que usa un `Header`, un `string`
+y otros dos `msg`s mas:
+
+```text
+Header header
+string child_frame_id
+geometry_msgs/PoseWithCovariance pose
+geometry_msgs/TwistWithCovariance twist
+```
+
+archivos `srv` son como los archivos `msg` exepto que contienen dos partes: un `request`
+y un `response` las dos partes son separadas por un `---` por ejemplo:
+
+```text
+int64 A
+int64 B
+---
+int64 Sum
+```
+
+Osea que lo que vemos en este ejemplo que `A` y `B` son la parte de `request` y
+que `Sum` es la parte de `response`
+
+## Usando `msg`s
+
+### Creando un `msg`
+
+Vamos a definir un nuevo `msg` en el package que creamos
+
+```text
+roscd beginner_tutorials
+mkdir msg
+echo "int64 num" > msg/Num.msg
+```
+
+Hay un paso mas para que podamos utilizar el nuevo `msg` y es que debemos asegurarnos
+de que en el tiempo de compilacion este archivo se convierta en en lenguaje de programacion
+que estamos utilizando, para ello debemos verificar en el archivo `package.xml`
+y debemos asegurarnos de que las siguientes dos lineas esten descomentadas:
+
+```xml
+<build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
+```
+
+Esto como dijimos pone de maniefiesto que en tiempo de compilacion `build_depend`
+necesitamos la generacion de los mensajes
+
+Ademas debemos agregar esta generacion de msg en el archivo `Cmake` del proyecto
+para ello abrimos el archivo `CmakeLists.txt` y agregamos la linea:
+`message_generation` como dependencia:
+
+```cmake
+find_package(catkin REQUIRED COMPONENTS
+   roscpp
+   rospy
+   std_msgs
+   message_generation
+)
+```
+Tambien debemos asegurarnos de que exportamos el mensaje como `runtime`, para
+ello debemos modificar las lineas en donde se ve:
+
+```cmake
+catkin_package(
+  ...
+  CATKIN_DEPENDS message_runtime ...
+  ...)
+```
+Luego debemos agregar al `msg` en el bloque de codigo:
+
+```cmake
+add_message_files(
+  FILES
+  Num.msg
+)
+```
+Luego debemos asegurarnos de que la funcion `generate_messages()` sea llamada,
+para ello descomentamos las siguientes lineas:
+
+```cmake
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+```
+
+## Usando `rosmsg`
+
+Eso es todo lo que necesitamos para generar un archivo de `msg`. Podemos asegurarnos
+de que ROS "ve" a nuestro simple `msg` utilizando el comando `show`:
+
+`rosmsg show [message type]`
+
+Ejemplo:
+
+`rosmsg show beginner_tutorials/Num`
+
+Nos tiene que mostrar los types que definimos en el archivo
+
+## Usando `srv`
+
+### Creando un `srv`
+
+Vamos a crea un `srv` en el package que estamos utilizando de pruebas:
+
+```text
+roscd beginner_tutorials
+mkdir srv
+```
+
+En lugar de hacer el archivo a mano vamos a copiar uno de otro package, para esto
+`roscp` es un comando util para copiar archivos desde un package a otro:
+
+```text
+roscp [package_name] [file_to_copy] [path]
+```
+Ahora podemos entoces copiar un servicio que esta en el package `rospy_tutorials`
+
+`roscp rospy_tutorials AddTwoInts.srv srv/AddTwoInts.srv`
+
+Como con los archivos `msg` debemos activar su generacion en el `cmake`
+
+Y como tambien para `msg` necesitamos agregar el archivo con la extension en el
+bloque de codigo:
+
+```cmake
+add_service_files(
+  FILES
+  AddTwoInts.srv
+)
+```
+
+### Usando `rossrv`
+
+Como con `msg` podemos verificar que ROS "ve" a el `srv` que creamos con el comando
+`rossrv show`:
+
+`rossrv show <service type>`
+
+Ejemplo:
+
+`rossrv show beginner_tutorials/AddTwoInts`
+
+## Escribiendo un simple _publisher_ y _subscriber_ con Python
+
+Primero creamos una carpeta donde el `cmake` va a buscar nuestro _script_ que se
+tiene que llamar `scripts`
+
+Entonces en nuestro proyecto que venimos haciendo:
+
+```text
+roscd beginner_tutorials
+mkdir scripts
+cd scripts
+```
+
+en esa carpeta ponemos el siguiente script de Python(con el nombre `talker.py`):
+
+```python
+#!/usr/bin/env python
+# Software License Agreement (BSD License)
+#
+# Copyright (c) 2008, Willow Garage, Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above
+#    copyright notice, this list of conditions and the following
+#    disclaimer in the documentation and/or other materials provided
+#    with the distribution.
+#  * Neither the name of Willow Garage, Inc. nor the names of its
+#    contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# Revision $Id$
+
+## Simple talker demo that published std_msgs/Strings messages
+## to the 'chatter' topic
+
+import rospy
+from std_msgs.msg import String
+
+def talker():
+    pub = rospy.Publisher('chatter', String, queue_size=10)
+    rospy.init_node('talker', anonymous=True)
+    rate = rospy.Rate(10) # 10hz
+    while not rospy.is_shutdown():
+        hello_str = "hello world %s" % rospy.get_time()
+        rospy.loginfo(hello_str)
+        pub.publish(hello_str)
+        rate.sleep()
+
+if __name__ == '__main__':
+    try:
+        talker()
+    except rospy.ROSInterruptException:
+        pass
+```
+Al que tenemos que darle permisos de ejecucion: `sudo chmod +x talker.py`
+
+Luego debemos modificar el `cmake` para que sepa donde tenemos el script:
+
+```text
+catkin_install_python(PROGRAMS scripts/talker.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+```
+## El codigo explicado
+
+Como sabemos todos los scripts de Python deben comenzar con esta linea para que
+el interprete sepa que se trata de un archivo de Python
+```python
+#!/usr/bin/env python
+```
+
+Necesitamos importar `rospy` que es la libreria principal que hace que podamos
+escribir el codigo en Python, luego el otro `import` es para que podamos reutilizar
+el type `std_msg/String` (que es un simple String) para publicar el mensaje
+
+```python
+import rospy
+from std_msgs.msg import String
+```
+
+Luego con la siguiente linea:
+```python
+pub = rospy.Publisher('chatter', String, queue_size=10)
+rospy.init_node('talker', anonymous=True)
+```
+Estamos declarando nuestro nodo va a publicar en el `topic` `chatter` usando el
+type para el mensaje como un `String` (que viene del import que hicimos) y luego
+`queue_size` es el limite que queremos que tenga la cola de mensajes si algun
+subscriptor no esta recibiendo lo suficientemente rapdido. La proxima linea es
+importante ya que le dice a `rospy` el nombre de nuestro nodo (hasta que `rospy`
+no tiene esta informacion, este no puede comenzar la comunicacion con el `master`
+de ROS) en este caso el nodo se va a llamar `talker`, el parametro `anonymous=True`
+nos asegura que nuestro nodo tiene un unico nombre al que se le van a aniadir
+al final del `NAME` (en este caso `talker`) unos caracteres random.
+Luego con la linea:
+
+```python
+rate = rospy.Rate(10) # 10Hz
+```
+creamos un objeto `Rate` que con uno de sus metodos llamados `sleep()` nos va
+a permitir implementar un loop de `10Hz`(o sea que vamos a correr este loop 10
+veces por seg)
+
+Luego en las lineas:
+
+```python
+while not rospy.is_shutdown():
+        hello_str = "hello world %s" % rospy.get_time()
+        rospy.loginfo(hello_str)
+        pub.publish(hello_str)
+        rate.sleep()
+```
+chequeamos que el flag de `.is_shutdown()` que nos dice si el programa debe
+finalizar, luego creamos un `str` que va a ser lo que publiquemos con las funciones
+`publish()` y `loginfo()` una es la que publica en el canal de comunicacion y la
+otra publica en los lugares donde se hacen `logs` habitualmente(en el `screen`, en
+el archivo de log del `node` y en `rosout`) osea que es una herramienta para debbugear
+
+## Escribiendo del nodo _subscriber_
+
+### El codigo
+
+```python
+#!/usr/bin/env python
+# Software License Agreement (BSD License)
+#
+# Copyright (c) 2008, Willow Garage, Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above
+#    copyright notice, this list of conditions and the following
+#    disclaimer in the documentation and/or other materials provided
+#    with the distribution.
+#  * Neither the name of Willow Garage, Inc. nor the names of its
+#    contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# Revision $Id$
+
+## Simple talker demo that listens to std_msgs/Strings published 
+## to the 'chatter' topic
+
+import rospy
+from std_msgs.msg import String
+
+def callback(data):
+    rospy.loginfo(rospy.get_caller_id() + 'I heard %s', data.data)
+
+def listener():
+
+    # In ROS, nodes are uniquely named. If two nodes with the same
+    # name are launched, the previous one is kicked off. The
+    # anonymous=True flag means that rospy will choose a unique
+    # name for our 'listener' node so that multiple listeners can
+    # run simultaneously.
+    rospy.init_node('listener', anonymous=True)
+
+    rospy.Subscriber('chatter', String, callback)
+
+    # spin() simply keeps python from exiting until this node is stopped
+    rospy.spin()
+
+if __name__ == '__main__':
+    listener()
+```
+
+Para agregar este nodo debemos hacer como en el caso del `talker.py` agregarlo
+en el `cmake`:
+
+```cmake
+catkin_install_python(PROGRAMS scripts/talker.py scripts/listener.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+```
+
+### El codigo explicado
+
+El codigo para este `listener.py` es similar que el de `talker.py` a exepcion que
+hemos introducido un nuevo mecanismo de "callback" para subscribirnos a `msg`s
+
+```python
+rospy.init_node('listener', anonymous=True)
+
+rospy.Subscriber("chatter", String, callback)
+
+# spin() simply keeps python from exiting until this node is stopped
+rospy.spin()
+```
+
+Osea estamos dandole un nombre al nodo y luego nos subscrivimos al `topic` `chatter`
+que tiene como type `std_msgs.String` y cuando un nuevo `msg` es recibido llamamos
+a la funcion `callback` con el `msg` como primer argumento. La ultima linea llama
+al metodo `spin()` que simplemente mantiene nuestro nodo "vivo" hasta que se le de
+un "shutdown"
+
+Una vez que hemos hecho esto solo nos resta hacer `catkin_make` en el _workspace_
+de `catking` para que se genere el codigo que necesitamos
+
+## Creando un _publisher_ en Cpp
+
+Primero creamos una carpeta que va a ser donde el `cmake` busque los archivos de
+codigo
+
+```text
+roscd beginner_tutorials
+mkdir -p src
+```
+
+Creamos un archivo con el nombre `talker.cpp`:
+
+```cpp
+/*
+ * Copyright (C) 2008, Morgan Quigley and Willow Garage, Inc.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *   * Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *   * Neither the names of Stanford University or Willow Garage, Inc. nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+// %Tag(FULLTEXT)%
+// %Tag(ROS_HEADER)%
+#include "ros/ros.h"
+// %EndTag(ROS_HEADER)%
+// %Tag(MSG_HEADER)%
+#include "std_msgs/String.h"
+// %EndTag(MSG_HEADER)%
+
+#include <sstream>
+
+/**
+ * This tutorial demonstrates simple sending of messages over the ROS system.
+ */
+int main(int argc, char **argv)
+{
+  /**
+   * The ros::init() function needs to see argc and argv so that it can perform
+   * any ROS arguments and name remapping that were provided at the command line.
+   * For programmatic remappings you can use a different version of init() which takes
+   * remappings directly, but for most command-line programs, passing argc and argv is
+   * the easiest way to do it.  The third argument to init() is the name of the node.
+   *
+   * You must call one of the versions of ros::init() before using any other
+   * part of the ROS system.
+   */
+// %Tag(INIT)%
+  ros::init(argc, argv, "talker");
+// %EndTag(INIT)%
+
+  /**
+   * NodeHandle is the main access point to communications with the ROS system.
+   * The first NodeHandle constructed will fully initialize this node, and the last
+   * NodeHandle destructed will close down the node.
+   */
+// %Tag(NODEHANDLE)%
+  ros::NodeHandle n;
+// %EndTag(NODEHANDLE)%
+
+  /**
+   * The advertise() function is how you tell ROS that you want to
+   * publish on a given topic name. This invokes a call to the ROS
+   * master node, which keeps a registry of who is publishing and who
+   * is subscribing. After this advertise() call is made, the master
+   * node will notify anyone who is trying to subscribe to this topic name,
+   * and they will in turn negotiate a peer-to-peer connection with this
+   * node.  advertise() returns a Publisher object which allows you to
+   * publish messages on that topic through a call to publish().  Once
+   * all copies of the returned Publisher object are destroyed, the topic
+   * will be automatically unadvertised.
+   *
+   * The second parameter to advertise() is the size of the message queue
+   * used for publishing messages.  If messages are published more quickly
+   * than we can send them, the number here specifies how many messages to
+   * buffer up before throwing some away.
+   */
+// %Tag(PUBLISHER)%
+  ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
+// %EndTag(PUBLISHER)%
+
+// %Tag(LOOP_RATE)%
+  ros::Rate loop_rate(10);
+// %EndTag(LOOP_RATE)%
+
+  /**
+   * A count of how many messages we have sent. This is used to create
+   * a unique string for each message.
+   */
+// %Tag(ROS_OK)%
+  int count = 0;
+  while (ros::ok())
+  {
+// %EndTag(ROS_OK)%
+    /**
+     * This is a message object. You stuff it with data, and then publish it.
+     */
+// %Tag(FILL_MESSAGE)%
+    std_msgs::String msg;
+
+    std::stringstream ss;
+    ss << "hello world " << count;
+    msg.data = ss.str();
+// %EndTag(FILL_MESSAGE)%
+
+// %Tag(ROSCONSOLE)%
+    ROS_INFO("%s", msg.data.c_str());
+// %EndTag(ROSCONSOLE)%
+
+    /**
+     * The publish() function is how you send messages. The parameter
+     * is the message object. The type of this object must agree with the type
+     * given as a template parameter to the advertise<>() call, as was done
+     * in the constructor above.
+     */
+// %Tag(PUBLISH)%
+    chatter_pub.publish(msg);
+// %EndTag(PUBLISH)%
+
+// %Tag(SPINONCE)%
+    ros::spinOnce();
+// %EndTag(SPINONCE)%
+
+// %Tag(RATE_SLEEP)%
+    loop_rate.sleep();
+// %EndTag(RATE_SLEEP)%
+    ++count;
+  }
+
+
+  return 0;
+}
+// %EndTag(FULLTEXT)%
+```
+
+### El codigo explicado
+
+Primero importamos los headers:
+
+```cpp
+#include "ros/ros.h"
+#include "std_msgs/String.h"
+```
+En `ros.h` tenemos la mayoria de los headers que son necesarios para que funcione
+ROS. Luego incluimos el header para el type de `msg` `String` que esta en el package
+como vimos `std_msgs`
+
+```cpp
+ros::init(argc, argv, "talker");
+```
+Luego inicializamos ROS y la damos un nombre a nuestro node.
+
+```cpp
+ros::NodeHandle n;
+```
+Creamos un _handle_ para este proceso. EL primer nodo hara la inicializacion de
+los nodos y el ultimo hara la destruccion limpiando todos los recursos que usamos(que miedito...)
+
+```cpp
+ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
+```
+Le decimos al nodo `master` que vamos a publicar un `msg` de type `std_msgs/String`
+sobre el `topic` "chatter". Esto hace que el nodo `master` pueda vincular a cualquier
+nodo con este `topic` en el que estamos publicando y el segundo argumento es el
+tamanio de la queue que queremos
+
+`NodeHandle::advertise()` retorna un objeto `ros::Publisher` el cual sirve para dos
+cosas:
+
+ 1. Contiene un metodo `publish()` que nos deja publicar mensajes sobre un `topic`
+ 2. Cuando queda fuera del scope automaticamente se dejara de publicar o _advertise_
+
+```cpp
+ros::Rate loop_rate(10);
+```
+Creamos un objeto `Ros::Rate` que como en el caso de Python nos permite setear
+la frecuencia de nuestro loop principal
+
+```cpp
+int count = 0;
+while (ros::ok())
+{
+```
+
+Por default `roscpp` mira si la senial `SIGINT` (que es la que se lanza cuando
+presionamos `Ctrl-c`) se ha emitido o no, lo que causara que `ros::ok()` retorne
+un `false` si esto ha sucedido
+
+`ros::ok()` retornara un `false` si:
+
+ - una senial `SIGINT` ha sido emitida(`Ctrl-c`)
+ - `ros::shutdown()` ha sido llamado por otra parte de la aplicacion
+ - todos los `ros::NodeHandles` han sido destruidos
+
+Una vez que `ros::ok()` sea `false` todos los otras llamadas que suceden en ROS
+van a fallar tambien
+
+```cpp
+   std_msgs::String msg;
+
+   std::stringstream ss;
+   ss << "hello world " << count;
+   msg.data = ss.str()
+```
+
+Aqui hacemos un _broacast_ del mensaje sobre ROS usando una clase que esta adaptada
+para esto, generalmente generada desde un archivo `msg` datatypes mas complicados
+son posibles, pero por ahora solo usamos el `String` de la libreria estandar
+que tiene un miembro que se llama `data`
+
+```cpp
+chatter_pub.publish(msg);
+```
+Luego enviamos el mesaje a traves del objeto que creamos `ros::Publisher` con
+esto ponemos el mensaje en el canal para que cualquiera que pueda recibirlo que
+este conectado
+
+```cpp
+ROS_INFO("%s", msg.data.c_str());
+```
+Con esta macro reemplazamos a `cout` y `printf` para imprimir los mensajes en
+la consola
+
+```cpp
+ros::spinOnce();
+```
+
+esta llamada a `spinceOnce()` no es necesaria para este simple programa porque
+no estamos recibiendo ningun `callback`. Sin embargo si a este nodo le agregamos
+que se subscriba a algun `topic` y no tenemos la llamada a esta funcion no vamos
+a obtener nunca las llamadas a los `callback` entonces agregarla no esta de mas
+(y quiero creer que no agrega overhead...)
+
+```cpp
+loop_rate.sleep();
+```
+Luego hacemos el `sleep` que necesitamos para cumplir con los requisitos de periodicidad
+para publicar que pusimos (10 Hz)
+Luego lo que nos queda es escribir un nodo para que reciba el mensaje
+
+
+## Escribiendo el nodo _subscriber_
+
+### El codigo
+
+```cpp
+
+/*
+ * Copyright (C) 2008, Morgan Quigley and Willow Garage, Inc.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *   * Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *   * Neither the names of Stanford University or Willow Garage, Inc. nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+// %Tag(FULLTEXT)%
+#include "ros/ros.h"
+#include "std_msgs/String.h"
+
+/**
+ * This tutorial demonstrates simple receipt of messages over the ROS system.
+ */
+// %Tag(CALLBACK)%
+void chatterCallback(const std_msgs::String::ConstPtr& msg)
+{
+  ROS_INFO("I heard: [%s]", msg->data.c_str());
+}
+// %EndTag(CALLBACK)%
+
+int main(int argc, char **argv)
+{
+  /**
+   * The ros::init() function needs to see argc and argv so that it can perform
+   * any ROS arguments and name remapping that were provided at the command line.
+   * For programmatic remappings you can use a different version of init() which takes
+   * remappings directly, but for most command-line programs, passing argc and argv is
+   * the easiest way to do it.  The third argument to init() is the name of the node.
+   *
+   * You must call one of the versions of ros::init() before using any other
+   * part of the ROS system.
+   */
+  ros::init(argc, argv, "listener");
+
+  /**
+   * NodeHandle is the main access point to communications with the ROS system.
+   * The first NodeHandle constructed will fully initialize this node, and the last
+   * NodeHandle destructed will close down the node.
+   */
+  ros::NodeHandle n;
+
+  /**
+   * The subscribe() call is how you tell ROS that you want to receive messages
+   * on a given topic.  This invokes a call to the ROS
+   * master node, which keeps a registry of who is publishing and who
+   * is subscribing.  Messages are passed to a callback function, here
+   * called chatterCallback.  subscribe() returns a Subscriber object that you
+   * must hold on to until you want to unsubscribe.  When all copies of the Subscriber
+   * object go out of scope, this callback will automatically be unsubscribed from
+   * this topic.
+   *
+   * The second parameter to the subscribe() function is the size of the message
+   * queue.  If messages are arriving faster than they are being processed, this
+   * is the number of messages that will be buffered up before beginning to throw
+   * away the oldest ones.
+   */
+// %Tag(SUBSCRIBER)%
+  ros::Subscriber sub = n.subscribe("chatter", 1000, chatterCallback);
+// %EndTag(SUBSCRIBER)%
+
+  /**
+   * ros::spin() will enter a loop, pumping callbacks.  With this version, all
+   * callbacks will be called from within this thread (the main one).  ros::spin()
+   * will exit when Ctrl-C is pressed, or the node is shutdown by the master.
+   */
+// %Tag(SPIN)%
+  ros::spin();
+// %EndTag(SPIN)%
+
+  return 0;
+}
+// %EndTag(FULLTEXT)%
+
+```
+
+### Explicacion del codigo
+
+```cpp
+void chatterCallback(const std_msgs::String::ConstPtr& msg)
+{
+  ROS_INFO("I heard: [%s]", msg->data.c_str());
+}
+```
+
+Creamos una funcion que va a ser las veces de `callback` que sera la funcion
+que llamamos cuando recibimos un mensaje(o sea la accion que tomamos cuando
+recibimos un mensaje)
+
+Esta funcion toma como parametro un puntero constante a un `std_msgs::String`
+que es una no se que de la libreria `boost` o sea que tenemos que salir corriendo
+porque no debe ser algo bueno
+
+```cpp
+ros::Subscriber sub = n.subscribe("chatter", 1000, chatterCallback);
+```
+Creamos un `Subscriber` y nos subscribimos al `topic` `chatter` con un limite de
+mensajes de 1000 y con la funcion que va a ser llamada cuando tengamos un mensaje
+llamada `chatterCallback`
+
+Luego si hacemos esta vez un `spin` ya que en este node si tenemos una funcion de
+`callback`
