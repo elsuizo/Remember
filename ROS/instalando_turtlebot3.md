@@ -29,6 +29,16 @@ luego vamos de nuevo a la carpeta del workspace `cd ..` y compilamos los package
 
    `roslaunch turtlebot3_gazebo turtlebot3_world.launch`
 
+   Tambien tenemos el modelo de una casa donde podemos lanzar la simulacion:
+
+   `roslaunch turtlebot3_gazebo turtlebot3_house.launch`
+
 3. luego para manejar el robot con el teclado lanzamos el nodo para teleoperarlo:
 
    `roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch`
+
+## Donde seguir
+
+Para mas ejemplos podemos visitar la pagina del proyecto:
+
+`https://emanual.robotis.com/docs/en/platform/turtlebot3/simulation/#ros-1-simulation`
