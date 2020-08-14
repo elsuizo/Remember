@@ -1,2 +1,0 @@
-* Cosas para recordar de ROS(Robot Operating System)
-
