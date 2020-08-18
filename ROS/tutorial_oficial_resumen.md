@@ -850,7 +850,7 @@ el archivo de log del `node` y en `rosout`) osea que es una herramienta para deb
 #
 # Revision $Id$
 
-## Simple talker demo that listens to std_msgs/Strings published 
+## Simple talker demo that listens to std_msgs/Strings published
 ## to the 'chatter' topic
 
 import rospy
