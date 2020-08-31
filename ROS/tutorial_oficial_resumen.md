@@ -1295,3 +1295,276 @@ llamada `chatterCallback`
 
 Luego si hacemos esta vez un `spin` ya que en este node si tenemos una funcion de
 `callback`
+
+## Escribiendo un servicio en Cpp
+
+Primero vamos a crear un package nuevo que como dependencias tenga a las librerias
+`roscpp` y `rospy`
+
+`catkin_create_pkg add_two_ints roscpp rospy`
+
+luego creamos una carpeta que se tiene que llamar `srv` en donde vamos a poner
+el archivo que define a nuestro servicio, ponemos en este caso el archivo que
+define el servicio lo llamamos `AddTwoInts.srv`(el nombre es importante porque define
+como vamos a llamar despues a los objetos en el codigo):
+
+```text
+int64 num1
+int64 num2
+---
+int64 sum
+```
+
+Donde podemos ver que los primeros dos parametros son los que espera el service
+como entrada y el que esta despues de las lineas es el type y el nombre de salida
+
+Luego creamos el server en un archivo llamado `add_two_ints_server.cpp`
+
+```cpp
+#include "ros/ros.h"
+#include "add_two_ints/AddTwoInts.h"
+
+/* esta va a ser la funcion de callback que llame el server cuando le hagan una
+ * consulta */
+bool add(add_two_ints::AddTwoInts::Request& request,
+      add_two_ints::AddTwoInts::Response& response) {
+   /* hacemos el super calculo que vamos a guardar en la variable response */
+   response.sum = request.num1 + request.num2;
+
+   ROS_INFO("request: x=%ld, y=%ld", (long int)request.num1, (long int)request.num2);
+   ROS_INFO("sending back reponse: [%ld]",(long int) response.sum);
+   return true;
+}
+
+int main(int argc, char** argv) {
+   ros::init(argc, argv, "add_two_ints_server");
+   ros::NodeHandle node_handle;
+
+   ros::ServiceServer service = node_handle.advertiseService("add_two_ints", add);
+   ROS_INFO("Ready to add two ints.");
+
+   /* NOTE(elsuizo:2020-08-19): necesitamos esta funcion para que sea llamada el callback!!! */
+   ros::spin();
+
+   return 0;
+}
+```
+y el client que va a llamar al service que creamo en el server:
+
+```cpp
+#include "ros/ros.h"
+/* NOTE(elsuizo:2020-08-19): aca va siempre el nombre del package que creamos
+ * o donde esta los archivos .srv y el nombre de los archivos .srv pero con
+ * .h como extension o sea que son el resultado de la generacion de codigo
+ * que pasa los .src ---> .h */
+#include "add_two_ints/AddTwoInts.h"
+#include <cstdlib>
+
+int main(int argc, char** argv) {
+   ros::init(argc, argv, "add_two_ints_client");
+
+   if (argc != 3) {
+      ROS_INFO("usage: add_two_ints_client X Y");
+      return 1;
+   }
+
+   /* creamos el handle */
+   ros::NodeHandle node_handle;
+   /* NOTE(elsuizo:2020-08-19): nos estamos subscribiendo al servicio que hicimos
+    * en el server por eso tiene que tener el mismo nombre */
+   ros::ServiceClient client = node_handle.ServiceClient<add_two_ints::AddTwoInts>("add_two_ints");
+
+   add_two_ints::AddTwoInts service;
+   service.request.num1 = atoll(argv[1]);
+   service.request.num2 = atoll(argv[2]);
+
+   if (client.call(service)) {
+      ROS_INFO("sum: %ld", (long int)service.response.sum);
+   } else {
+      ROS_ERROR("failed to call service add_two_ints");
+      return 1;
+   }
+
+   return 0;
+}
+```
+Luego como tenemos la generacion de service y msgs y la generacion de binarios
+(cosa que no se recomienda en proyectos grandes, lo que se debe hacer es packages
+para los msgs y service aparte de los binarios que definen los *nodes*)
+
+tenemos que modificar el `CMakeLists.txt` para que compile los archivos `cpp`
+y genere los binarios que queremos de la siguiente manera:
+
+```cmake
+#-------------------------------------------------------------------------
+#                        server
+#-------------------------------------------------------------------------
+## Declare a C++ executable
+## With catkin_make all packages are built within a single CMake context
+## The recommended prefix ensures that target names across packages don't collide
+add_executable(${PROJECT_NAME}_server src/add_two_ints_server.cpp)
+
+## Specify libraries to link a library or executable target against
+target_link_libraries(${PROJECT_NAME}_server ${catkin_LIBRARIES})
+
+## Add cmake target dependencies of the executable
+## same as for the library above
+add_dependencies(${PROJECT_NAME}_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#-------------------------------------------------------------------------
+#                        client
+#-------------------------------------------------------------------------
+## Declare a C++ executable
+## With catkin_make all packages are built within a single CMake context
+## The recommended prefix ensures that target names across packages don't collide
+add_executable(${PROJECT_NAME}_client src/add_two_ints_client.cpp)
+
+## Specify libraries to link a library or executable target against
+target_link_libraries(${PROJECT_NAME}_client ${catkin_LIBRARIES})
+
+## Add cmake target dependencies of the executable
+## same as for the library above
+add_dependencies(${PROJECT_NAME}_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+```
+
+como vemos lo que hacemos es que coincidan los nombres de los archivos que creamos
+y tambien le damos los nombres de los ejecutables que queremos
+
+Y con eso si hacemos un `catkin_make` en el *root* del workspace tendremos disponibles
+el server y el client
+
+para utilizarlos primero tenemos que tener el serer corriendo:
+
+`rosrun add_two_ints add_two_ints_server`
+
+y luego para hacer un request al service que esta corriendo hacemos:
+
+`rosrun add_two_ints add_two_ints_client 17 20`
+
+
+## Grabando datos y luego utilizando esos datos
+
+Podemos grabar datos de una simulacion de ROS en archivos de extension `.bag` para
+luego podamos procesarla o utilizarla de nuevo
+
+### Grabando datos
+
+Vamos a tomar el ejemplo de la tortuga(que no se te escape) para grabar los datos
+que publican todos los topics
+
+como vimos para correr la simulacion de la tortuga hacemos:
+
+`rosrun turtlesim turtlesim_node`
+
+y para poder moverla con el teclado utilizamos:
+
+`rosrun turtlesim turtle_teleop_key`
+
+Esto comienza dos *nodes* que son el visualizador de la totuga y el que nos permite
+manejarla con el teclado
+
+#### Grabando todos los `topic`s que estan publicando datos
+
+Primero como sabemos podemos ver cuales son los `topic`s que estan publicando
+datos con el comando:
+
+`rostopic list -v`
+
+que nos da la siguiente lista:
+
+```text
+Published topics:
+ * /rosout_agg [rosgraph_msgs/Log] 1 publisher
+ * /rosout [rosgraph_msgs/Log] 4 publishers
+ * /turtle1/pose [turtlesim/Pose] 1 publisher
+ * /turtle1/color_sensor [turtlesim/Color] 1 publisher
+ * /turtle1/cmd_vel [geometry_msgs/Twist] 1 publisher
+
+Subscribed topics:
+ * /rosout [rosgraph_msgs/Log] 1 subscriber
+ * /turtle1/cmd_vel [geometry_msgs/Twist] 1 subscriber
+```
+
+La lista que vemos *Published topics:* tiene solo los *types* de mensajes que
+pueden ser potencialmente grabados en un archivo log. El *topic* `/turtle1/cmd_vel [geometry_msgs/Twist] 1 publisher`
+es el mensaje que publica `turtle_teleop_key` que es tomado como entrada por
+el proceso de la tortuga. Luego los mensajes:
+
+`/turtle1/color_sensor [turtlesim/Color] 1 publisher`
+
+`/turtle1/pose [turtlesim/Pose] 1 publisher`
+
+son publicados por la tortuga.
+
+Podemos grabar los datos publicado. Primero preparamos una carpeta donde vamos
+a poner los archivos que guardamos
+
+```text
+mkdir bagfiles
+cd bagfiles
+rosbag record -a
+```
+
+Ya que pusimos la opcion `-a` estara grabando todos los *topic*s que estan disponibles
+Luego de que hemos grabado obtendremos un archivo `.bag` que sera la data que hemos
+grabado
+
+#### Examinando los archivos `bag`
+
+Una vez que hemos grabado los archivos usando `rosbag record` podemos "jugar" con
+ellos usando el comando `rosbag info` o `rosbag play`
+
+
+`rosbag info <your bagfile>`
+
+en nuestro ejemplo de la tortuga vemos lo siguiente:
+
+```text
+path:        2020-08-19-16-51-16.bag
+version:     2.0
+duration:    57.8s
+start:       Aug 19 2020 16:51:16.68 (1597866676.68)
+end:         Aug 19 2020 16:52:14.44 (1597866734.44)
+size:        525.8 KB
+messages:    7339
+compression: none [1/1 chunks]
+types:       geometry_msgs/Twist [9f195f881246fdfa2798d1d3eebca84a]
+             rosgraph_msgs/Log   [acffd30cd6b6de30f120938c17c593fb]
+             turtlesim/Color     [353891e354491c51aabe32df673fb446]
+             turtlesim/Pose      [863b248d5016ca62ea2e895ae5265cf9]
+topics:      /rosout                   19 msgs    : rosgraph_msgs/Log   (2 connections)
+             /rosout_agg               16 msgs    : rosgraph_msgs/Log
+             /turtle1/cmd_vel         107 msgs    : geometry_msgs/Twist
+             /turtle1/color_sensor   3598 msgs    : turtlesim/Color
+             /turtle1/pose           3599 msgs    : turtlesim/Pose
+```
+
+Luego el siguiente paso es reproducir lo que hemos grabado en el sistema que estamos
+corriendo(el de la tortuga). Primero tenemos que cerrar el *node* que esta corriendo
+`turtle_teleop_key`. Luego desde la carpeta que tenemos el `.bag` hacemos
+
+`rosbag play <bag_file>` y si esta corriendo el *node* de la tortuga vamos a ver
+que repite todo lo que hemos grabado!!!
+
+
+#### Grabando un cojunto mas chico de datos
+
+Cuando tenemos un sistema que es mas complicado no podemos grabar todos lo topics
+porque seria mucho esfuerzo, por ello podemos grabar ciertos `topic`s que creamos
+que son los mas importantes. Por ejemplo en este caso podemos grabar solo los comandos
+de velocidad que vimos de la siguiente manera:
+
+`rosbag record -O subset /turtle1/cmd_vel /turtle1/pose`
+
+y con esto hemo reducido la cantidad de datos al ser almacenados
+
+
+#### Las limitaciones de `rosbag` `record/play`
+
+Cuando hacemos un `play` de la data que tenemos grabada puede ser que no se reproduzca
+de la exacta misma manera en la que la hemos grabados, la razon para esto es que
+`turtlesim` y cualquier sistema que sea muy sensible a pequenios cambios en el
+sistema de toma de tiempos, por eso debemos ser precabidos cuando lo utilizamos
+en estos tipos de sistemas
+
+
+## Leyendo mensajes desde un archivo `bag`
