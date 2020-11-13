@@ -1568,3 +1568,10 @@ en estos tipos de sistemas
 
 
 ## Leyendo mensajes desde un archivo `bag`
+
+Primero lo que necesitamos es un archivo `bag`. Podemos producir uno o bajarlo
+de algun lado, por ejemplo utilizando `wget`
+
+```bash
+wget https://open-source-webviz-ui.s3.amazonaws.com/demo.bag
+```

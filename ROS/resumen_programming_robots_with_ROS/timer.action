@@ -1,0 +1,25 @@
+# este es un archivo de definicion de una `action`, el cual tiene tres partes:
+# - objetivo
+# - resultado
+# - retroalimentacion
+
+# parte 1: objetivo
+
+# el tiempo que vamos a contar
+duration time_to_wait
+---
+# parte 2: el resultado, para ser enviado al server una vez que haya terminado
+
+# cuanto tiempo ha pasado
+duration time_elapsed
+# cuantas veces hemos notificado
+uint32 update_sent
+---
+
+# parte 3: la retroalimentacion, para ser enviada periodicamente por el server
+# durante la ejecucion
+
+# la cantidad de tiempo que paso desde el comienzo
+duration time_elapsed
+# la cantidad de tiempo que queda hasta que se termine el tiempo
+duration time_remaining
