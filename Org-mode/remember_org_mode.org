@@ -1,0 +1,6 @@
+* Cosas para recordar de org-mode
+** org-mode comun
+   - Cuando queremos hacer un nuevo item ~M-ret~
+   - Cuando queremos hacer que un item tenga una nueva indentacion: ~M-Left~
+   - Cuando queremos crear un nuevo checklist: ~M-S-Ret~
+   - Cuando queremos hacer que una checklist se ponga como completada: ~C-c C-c~
