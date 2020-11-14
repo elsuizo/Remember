@@ -1,0 +1,4 @@
+* Algunos packages piolas que fui encontrando por ahi
+** Plotjuggler
+   - Este package nos permite plotear tanto ~msg~ como asi tambien los archivos ~.bag~
+	[[https://plotjuggler.io/][link al sitio web]]

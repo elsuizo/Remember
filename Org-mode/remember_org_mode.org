@@ -1,6 +1,33 @@
 * Cosas para recordar de org-mode
 ** org-mode comun
-   - Cuando queremos hacer un nuevo item ~M-ret~
-   - Cuando queremos hacer que un item tenga una nueva indentacion: ~M-Left~
-   - Cuando queremos crear un nuevo checklist: ~M-S-Ret~
-   - Cuando queremos hacer que una checklist se ponga como completada: ~C-c C-c~
+*** Crear un nuevo item
+    Cuando queremos hacer un nuevo item ~M-ret~
+*** Recargar el archivo de configuracion
+    Cuando modificamos el ~init.el~ de alguna manera podemos hacer que se recargue con: ~C-x C-e~
+*** Item con nueva identacion
+    item nueva indentacion: ~M-Left~
+*** Nuevo checklist
+    Cuando queremos crear un nuevo checklist: ~M-S-Ret~
+*** Poner el tilde en el checklist
+    Cuando queremos hacer que una checklist se ponga como completada: ~C-c C-c~
+*** Ver el help de una variable o funcion
+    Cuando queremos ver el *help* de una variable o funcion de la configuracion
+      ~Ctr-h-b~ cuando nos paramos sobre ella
+*** Pasar a DONE una tarea
+    Cuando queremos hacer que una tarea pase a ~DONE~: ~C-c C-t~
+** org-mode agenda
+*** Ver los eventos en la agenda
+    Cuando queremos ver los eventos que tenemos en la agenda: ~org-agenda~
+*** Poner los archivos que seran "trackeados" por la agenda
+    Tenemos que poner manualmente los archivos que queremos que *org-agenda* siga, en el ~config.org~,
+    [[/home/elsuizo/.emacs.d/config.org::133][ejemplo en mi config]]
+*** Agregar a la agenda una tarea
+    Ponerle un dia determinado a una tarea: ~M-x org-schedulle~, el cual nos pone un calendario para elegir el dia
+    con ~S-arrow-keys~ podemos movernos por el calendario y elegir el dia
+*** Ponerle un deadline a una tarea
+    Podemos tambien tener *deadline* (una fecha que se nos vence algun evento): ~org-deadline~
+*** Hacer que una fecha sea ciclica
+    Podemos hacer que las fechas sean ciclicas o sea que cada cuanto queremos que se repitan, primero asociamos
+    una fecha con ~org-time-stamp~, por ejemplo:
+    <1989-11-14 Tue+1y>
+    Con esto estamos diciendo que cada año nos recuerde en la agenda
