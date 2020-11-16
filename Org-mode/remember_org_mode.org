@@ -1,7 +1,8 @@
 * Cosas para recordar de org-mode
 ** org-mode comun
 *** Crear un nuevo item
-    Cuando queremos hacer un nuevo item ~M-ret~
+    Cuando queremos hacer un nuevo item ~Alt-ret~ a continuacion de lo que estamos haciendo
+    En cambio cuando queremos que sea despues de lo que estamos escribiendo con ~Ctrl-ret~
 *** Recargar el archivo de configuracion
     Cuando modificamos el ~init.el~ de alguna manera podemos hacer que se recargue con: ~C-x C-e~
 *** Item con nueva identacion
@@ -13,9 +14,28 @@
 *** Ver el help de una variable o funcion
     Cuando queremos ver el *help* de una variable o funcion de la configuracion
       ~Ctr-h-b~ cuando nos paramos sobre ella
-*** Pasar a DONE una tarea
-    Cuando queremos hacer que una tarea pase a ~DONE~: ~C-c C-t~
+*** Mover un header de lugar(y mueve todo automagicamente!!!)
+    ~Alt-up~ o ~Alt-down~
+*** Insertar un link
+    Podemos insertar links de paginas webs o tambien paths de files
+    ~C-c C-l~
+*** Tomar el path y la linea de un archivo
+    Cuando queremos insertar un link a un archivo de texto en alguna linea en particular
+    tenemos disponibles una funcion que hice para esto, por ejemplo a esa misma funcion
+    en la ~config.org~, con ~C-c f~ obtenemos la linea y el path
+    [[/home/elsuizo/.emacs.d/config.org::148][link a la funcion]] 
+*** Embeber codigo de cualquier lenguaje de programacion
+    podemos embeber lineas de codigo de cualquier lenguaje de programacion en un archivo ~.org~ y
+    que lo reconozca para colerear su sintaxis
+    #+begin_src rust
+    fn piola(slice: &[u32]) -> usize {
+       slice.length()
+    }
+    #+end_src
 ** org-mode agenda
+*** Poner un tag a una tarea                                          :piola:
+    cuando queremos asociar una tarea con un tag (que nos sirve despues para poder filtrar cuando
+    hacemos un filter sobre todas las tareas) ~C-c C-q~
 *** Ver los eventos en la agenda
     Cuando queremos ver los eventos que tenemos en la agenda: ~org-agenda~
 *** Poner los archivos que seran "trackeados" por la agenda
@@ -31,3 +51,16 @@
     una fecha con ~org-time-stamp~, por ejemplo:
     <1989-11-14 Tue+1y>
     Con esto estamos diciendo que cada año nos recuerde en la agenda
+*** Poner un timer en una tarea
+    Cuando queremos poner un timer en una tarea (por ejemplo cuando comenzamos y cuando terminamos)
+    ~org-clock-in~ y ~org-clock-out~
+*** Evaluar de antemano cuanto nos puede costar esta tarea poniendole un esfuerzo numerico
+    ~org-set-effort~
+*** Poner una propiedad a una tarea
+    Esto seria como algo mas general de la anterior donde le podemos dar alguna propiedad a la
+    tarea: ~org-set-property~
+*** Mover una tarea desde un archivo a otro
+    ~org-refile~
+    Tenemos que tener la siguiente configuracion para que funcione, osea elegimos de antemano cuales
+    son los archivos que nos va a mostrar para que elijamos donde poner la tarea
+    [[/home/elsuizo/.emacs.d/config.org::138][configuracion necesaria]]
