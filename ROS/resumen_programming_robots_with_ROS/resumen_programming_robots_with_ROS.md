@@ -414,8 +414,106 @@ Necesitamos publicar el mensaje de velocidad continuamente ya que la mayoria de
 los drivers que se usan para robots moviles cuando pasa un tiempo sin recibir
 mensajes entonces pasan a un estado sleep(que casi siempre paran el robot).
 
-Luego en `if light_change_time > rospy.Time.now():` chequeamos el tiempo del sistema
-y toggleamos la luz en rojo/verde periodicamente.
+Luego en `if light_change_time > rospy.Time.now():` chequeamos el tiempo del
+sistema y toggleamos la luz en rojo/verde periodicamente.
 
 Por ultimo necesitamos llamar a `rospy.sleep()` ya que sino lo hacemos vamos a
 enviar muchos mensajes y la utilizacion del CPU sera intensa
+
+## Leyendo datos de sensores
+
+En el caso de el turtlebot3 que es el robot con el que estamos probando cosas
+tenemos accesible un scaner laser que publica en el topic `scan` con un `msg`
+que tiene como type a `LaserScan`, que tiene como miembro principal al miembro
+`ranges` que es en el que estamos interesados, es un array que contiene los
+rangos de distancias a los objetos mas cercanos, entonces podemos calcular las
+distancias a los objetos mas cercanos facilmente con este dato, por ejemplo si
+`i` es el indice en el array de `ranges` y `msg` es una instancia del mensaje:
+
+`bearing = msg.angle_min + i * msg.angle_max / len(msg.ranges)`
+
+Para retornar el rango a el obstaculo mas cercano que esta directamente en frente
+del robot, vamos a elegir los elementos del medio del array de `ranges`:
+
+`range_ahead = msg.ranges[len(msg.ranges)/2]`
+
+O podemos retornar el `range` que esta mas cerca de un obstaculo detectado por
+el scanner:
+
+`closest_range = min(msg.ranges)`
+
+### Sensando y actuando!!!
+
+Con el script de las `red_light_green_light.py` podiamos manejar el robot pero
+a lazo abierto podemos entonces combinarlo con el script anterior para hacer que
+cuando detecte un obstaculo mientras esta andando haga alguna accion
+
+## Cap8: Teleopt Bot
+
+Se comienza haciendo que el robot sea manejado por un operador mediante el teclado
+ya existe un package para esto pero en el libro lo hacen desde cero con otro
+package. Lo que tenemos que tener en cuenta es solo el msg `Twist` para setear
+la velocidad lineal(adelante/atras) o la velocidad angular alrededor del eje z
+que se conoce como velocidad *yay* y simplemente mide la velocidad a la que el
+robot esta girando alrededor del eje z. Es importante notar que estas velocidades
+son parte de un calculo mas "low level" que tiene en cuenta la geometria del robot
+y son calculadas o por ROS cuando publica el mensaje en forma de `Twist` o por
+en caso de que estemos usando un robot real un micro en el robot(que publicara
+en forma de `Twist` tambien). Desde la perspectiva del telecomando solo nos interesa
+la forma de mas alto nivel o sea "adelante", "atras", "girar derecha" y asi...
+
+### Patron de desarrollo
+
+En el libro se hace incapie que es mejor hacer pequenios nodos primero para
+probar de a una las caracteristicas que queremos hacer, ya que se hacen mas
+faciles para debugear. En el caso especifico de un telecomando vamos a hacer
+primero dos programas: uno para detectar las teclas que son presionadas y asi
+ser convertidas en acciones de ROS y otro que escucha esos `msg` de ROS y publica
+como salida `msg` del type `Twist`
+
+### Driver para el teclado
+
+Primero necesitamos crear el driver que lea el teclado y que publique estos eventos
+como `msg` de `std_msgs/String`
+
+```python
+#!/usr/bin/env python
+
+import sys, select, tty, termios
+import rospy
+from std_msgs.msg import String
+
+if __name__ == '__main__':
+    key_pub = rospy.Publisher('keys', String, queue_size=1)
+    rospy.init_node("keyboard_driver")
+    rate = rospy.Rate(100)
+    old_attr = termios.tcgetattr(sys.stdin)
+    tty.setcbreak(sys.stdin.fileno())
+    print("Publishing keystrokes. Press Ctrl-C to exit...")
+    while not rospy.is_shutdown():
+        if select.select([sys.stdin], [], [], 0)[0] == [sys.stdin]:
+            key_pub.publish(sys.stdin.read(1))
+        rate.sleep()
+    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_attr)
+```
+
+Como vemos este node utiliza la libreria `termios` para capturar las teclas que
+hemos presionado, lo que requiere que sepamos como las consolas de sistemas
+operativos del estilo Unix funcionan. Tipicamente las consolas generan un buffer
+de una linea entera de texto, solo enviando al programa que lo esta leyendo cuando
+presionamos enter. En nuestro caso lo que queremos es recibir las teclas que hemos
+recibido como una entrada estandar ni bien las hemos presionado, entonces para
+alterar este comportamiento debemos setear los atributos:
+
+```python
+old_attr = termios.tcgetattr(sys.stdin)
+tty.setcbreak(sys.stdin.fileno())
+```
+
+Con eso podemos "escuchar" continuamente el stream del `stdin` para ver si algun
+caracter esta listo. Como no queremos que sea bloqueante llamamos a la funcion
+`select()` con un parametro de timeout zero lo que hace que retorne inmediatamente
+una vez que se ha presionado alguna tecla. Para probar si este node esta funcionando
+correctamente necesitamos tres consolas abiertas. En la primera corriendo `roscore`
+en la segunda corriendo `rostopic echo /keys` y el la tercera terminal corremos
+el script de python anterior
