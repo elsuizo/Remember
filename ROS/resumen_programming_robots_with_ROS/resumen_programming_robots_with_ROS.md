@@ -7,84 +7,88 @@ comenzar con un proyecto de robotica
 
 ## `roscore`
 
-`roscore` es un servicio que provee informacion a los nodos que quieren transmitir
-un mensaje. Todos los nodos cuando al inicio de se ejecucion se conectan con `roscore`
-para obtener la informacion necesaria para transmitir y recibir mensajes. La arquitectura
-de comunicacion de ROS es un hibrido entre lo que conocemos como conexion clasica
-de client/server y un sistema totalmente distribuido. Cuando un nodo de ROS comienza
-a ejecutarse el espera que haya un variable de entorno llamada `ROS_MASTER_URI`.
-Esta variable contiene un string de la forma: `https://hostname:11311/` el cual
-en este caso implica que tenemos una instancia de `roscore` accesible en el puerto
-11311(este numero de puerto se eligio porque es un numero primo palindromico que
-no es usado por casi nadie). Sabiendo que el nodo de `roscore` esta corriendo, los
-nodos lo utilizan como punto de encuentro para encontrarse con los mensajes que son
-enviados por los otros nodos
+`roscore` es un servicio que provee informacion a los nodos que quieren
+transmitir un mensaje. Todos los nodos cuando al inicio de se ejecucion se
+conectan con `roscore` para obtener la informacion necesaria para transmitir y
+recibir mensajes. La arquitectura de comunicacion de ROS es un hibrido entre lo
+que conocemos como conexion clasica de client/server y un sistema totalmente
+distribuido. Cuando un nodo de ROS comienza a ejecutarse el espera que haya un
+variable de entorno llamada `ROS_MASTER_URI`.  Esta variable contiene un string
+de la forma: `https://hostname:11311/` el cual en este caso implica que tenemos
+una instancia de `roscore` accesible en el puerto 11311(este numero de puerto
+se eligio porque es un numero primo palindromico que no es usado por casi
+nadie). Sabiendo que el nodo de `roscore` esta corriendo, los nodos lo utilizan
+como punto de encuentro para encontrarse con los mensajes que son enviados por
+los otros nodos
 
 ## catkin
 
-`catkin` es un conjunto de archivos `cmake` que hacen las veces de package mannager
-Es bueno conocer algo de `cmake` para poder dominar mejor a `catkin`. Sin embargo
-para comenzar podemos decir que hay dos archivos que son importantes a la hora
-de crear codigo, y esos son `CMakeLists.txt` y `package.xml`
+`catkin` es un conjunto de archivos `cmake` que hacen las veces de package
+mannager Es bueno conocer algo de `cmake` para poder dominar mejor a `catkin`.
+Sin embargo para comenzar podemos decir que hay dos archivos que son
+importantes a la hora de crear codigo, y esos son `CMakeLists.txt` y
+`package.xml`
 
 ## Topics
 
-Como vimos ROS consiste en un numero de nodos independientes que componen un grafo
-Estos nodos por si mismo no son utiles. Las cosas se ponen interesantes solo cuando
-los nodos se comunican uno con otro intercambiando informacion y datos. La manera
-mas comun de realizar esto es con `topics`. Un `topic` es un nombre para un `stream`
-de mensajes con un type definidos. Por ejemplo, los datos desde un laser deben ser
-enviados sobre un `topic` llamados `scan`, con un type del mensaje `LaserScan`,
-mientras que los datos de una camara que debe ser enviados `image` con un type de
-mensaje `Image`.
-Topics implementan un mecanismo de comunicacion  `publish/subscribe` como una de
-las maneras mas comunes de intercambiar datos en un sistema distribuido
+Como vimos ROS consiste en un numero de nodos independientes que componen un
+grafo Estos nodos por si mismo no son utiles. Las cosas se ponen interesantes
+solo cuando los nodos se comunican uno con otro intercambiando informacion y
+datos. La manera mas comun de realizar esto es con `topics`. Un `topic` es un
+nombre para un `stream` de mensajes con un type definidos. Por ejemplo, los
+datos desde un laser deben ser enviados sobre un `topic` llamados `scan`, con
+un type del mensaje `LaserScan`, mientras que los datos de una camara que debe
+ser enviados `image` con un type de mensaje `Image`.  Topics implementan un
+mecanismo de comunicacion  `publish/subscribe` como una de las maneras mas
+comunes de intercambiar datos en un sistema distribuido
 
 ## Cap5: Actions
 
-Mientras que los `services` son piolas para tener interacciones simples como consultar
-el status y cosas de configuracion, estas no funcionan bien cuando tenemos iniciar
-una tarea que sea larga en el tiempo. Por ejemplo imaginemos que queremos hacer
-que un robot vaya a un lugar determinado llamando a un node `goto_position()`. No
-podemos saber de antemano cuanto tiempo le requerira hacer esta tarea al robot.
-Si hicieramos esto con un `service` estariamos bloqueando al robot a que haga
-cualquier otro tipo de tarea mientras esperamos un mensaje de vuelta. Por ello
-se crearon los `actions` que son la mejor manera de implementar interfaces del estilo
-*go to goal*, mientras los `services` son sincronicos los `actions` son asincronicos
-y ademas podemos usar retroalimentacion en ellos para proveer un update de los estados
-y de el comportamiento. Las `actions` son implementadas usando `topics`, una `action`
-es esencialmente un protocolo de alto nivel que especifica como setear un `topic`
-(objetivo, resultado, retroalimentacion)
-Usando una `action` de interface para implementar nuestra `goto_position()` lo que
-hacemos es enviar un objetivo, entonces empezamos a movernos a el y nos movemos
-a las otras tareas mientras el robot esta yendo al objetivo. Mientras pasa esto
-vamos recibiendo updates periodicos (distancia recorrida, tiempo estimado a la meta, etc...)
-terminando en un mensaje de llegada, y algo importante es que podemos abortar la
-mision y cambiar el objetivo on-the-fly
+Mientras que los `services` son piolas para tener interacciones simples como
+consultar el status y cosas de configuracion, estas no funcionan bien cuando
+tenemos iniciar una tarea que sea larga en el tiempo. Por ejemplo imaginemos
+que queremos hacer que un robot vaya a un lugar determinado llamando a un node
+`goto_position()`. No podemos saber de antemano cuanto tiempo le requerira
+hacer esta tarea al robot.  Si hicieramos esto con un `service` estariamos
+bloqueando al robot a que haga cualquier otro tipo de tarea mientras esperamos
+un mensaje de vuelta. Por ello se crearon los `actions` que son la mejor manera
+de implementar interfaces del estilo *go to goal*, mientras los `services` son
+sincronicos los `actions` son asincronicos y ademas podemos usar
+retroalimentacion en ellos para proveer un update de los estados y de el
+comportamiento. Las `actions` son implementadas usando `topics`, una `action`
+es esencialmente un protocolo de alto nivel que especifica como setear un
+`topic` (objetivo, resultado, retroalimentacion) Usando una `action` de
+interface para implementar nuestra `goto_position()` lo que hacemos es enviar
+un objetivo, entonces empezamos a movernos a el y nos movemos a las otras
+tareas mientras el robot esta yendo al objetivo. Mientras pasa esto vamos
+recibiendo updates periodicos (distancia recorrida, tiempo estimado a la meta,
+etc...) terminando en un mensaje de llegada, y algo importante es que podemos
+abortar la mision y cambiar el objetivo on-the-fly
 
 ## Definiendo una `action`
 
 Lo primero que debemos hacer es definir los mensajes de `goal`, `result` y
-`feedback` en el archivo de definicion de un `action` que por convecion tiene la
-extension `.action`. Este tipo de archivo es como los archivos `.srv` lo unico que
-se agrega es un campo mas y como pasaba en los `services` cada campo se convertia
-en un mensaje propio.
+`feedback` en el archivo de definicion de un `action` que por convecion tiene
+la extension `.action`. Este tipo de archivo es como los archivos `.srv` lo
+unico que se agrega es un campo mas y como pasaba en los `services` cada campo
+se convertia en un mensaje propio.
 
-Como un ejemplo simple vamos a definir un `action` que se comporte como un timer
-Lo que queremos es contar hacia atras una determinada cantidad de tiempo y emitir
-una senial cuando este contador expire, ademas nos va a decir periodicamente
-cuanto tiempo resta para finalizar. Como en los archivos de `services` tenemos
-las tres lineas (---) que hacen las veces de separador entre las partes del archivo
-Mientras que las definiciones de los servicios tienen dos partes (request y response)
-los archivos `action` tienen tres partes y por eso ponemos dos veces el separador
-(---) para que queden separados los campos (objetivo, resultado, retroalimentacion)
+Como un ejemplo simple vamos a definir un `action` que se comporte como un
+timer Lo que queremos es contar hacia atras una determinada cantidad de tiempo
+y emitir una senial cuando este contador expire, ademas nos va a decir
+periodicamente cuanto tiempo resta para finalizar. Como en los archivos de
+`services` tenemos las tres lineas (---) que hacen las veces de separador entre
+las partes del archivo Mientras que las definiciones de los servicios tienen
+dos partes (request y response) los archivos `action` tienen tres partes y por
+eso ponemos dos veces el separador (---) para que queden separados los campos
+(objetivo, resultado, retroalimentacion)
 
-Este archivo lo debemos poner en la carpeta `action` dentro de nuestro package(o
-sea dentro de la carpeta en donde estamos codeando el package)
+Este archivo lo debemos poner en la carpeta `action` dentro de nuestro
+package(o sea dentro de la carpeta en donde estamos codeando el package)
 
-Y para que sean generados las clases y definiciones de nuestro archivo de `action`
-debemos agregar en el archivo de configuracion de `cmake` `CMakeLists.txt` la linea
-`actionlib_msgs` en donde dice:
+Y para que sean generados las clases y definiciones de nuestro archivo de
+`action` debemos agregar en el archivo de configuracion de `cmake`
+`CMakeLists.txt` la linea `actionlib_msgs` en donde dice:
 
 ```cmake
 find_package(catkin REQUIRED COMPONENTS actionlib_msgs)
@@ -142,9 +146,9 @@ server.start()
 rospy.spin()
 ```
 
-Lo que hemos usado aqui es la libreria de tiempos de Python y la clase del package
-actionlib `SimpleActionServer`, tambien utilizamos los mensajes que son autogenerados
-desde nuestro `timer.action`
+Lo que hemos usado aqui es la libreria de tiempos de Python y la clase del
+package actionlib `SimpleActionServer`, tambien utilizamos los mensajes que son
+autogenerados desde nuestro `timer.action`
 
 `from basic.msg import TimerAction, TimerGoal, TimerResult`
 
@@ -158,11 +162,12 @@ server, con el constructor de la clase:
 
 en el cual el primer parametro es el nombre del server, el segundo parametro es
 es type del `action` para el cual el server va a esperar mensajes, el tercer
-argumento el nombre de la funcion de callback(que en este caso es nuestra funcion
-`do_timer()`) que hemos definido arriba y finalmente el cuarto parametro es `False`
-para desabilitar el auto-comienzo del server, por ello debemos poner la linea que
-le sigue `server.start()` para que comience el server. Y como ultimo lo que hacemos
-es un `spin` para que siga funcionando en un bucle infinito
+argumento el nombre de la funcion de callback(que en este caso es nuestra
+funcion `do_timer()`) que hemos definido arriba y finalmente el cuarto
+parametro es `False` para desabilitar el auto-comienzo del server, por ello
+debemos poner la linea que le sigue `server.start()` para que comience el
+server. Y como ultimo lo que hacemos es un `spin` para que siga funcionando en
+un bucle infinito
 
 Podemos probar si todo anda bien corriendo el node:
 
@@ -185,17 +190,17 @@ ver si esta corriendo bien verificando los topics que se crearon:
 
 Como vemos se crearon correctamente los topics de `timer`
 
-Si queremos podemos publicar y subscribirnos directamente a un server que publica
-un `action` ya que podemos usar los mensajes autogenerados de los types de `actions`
-Esto es ya que los `actions` son un protocolo de alto nivel construidos en base
-a los `messages` de ROS, pero para la mayoria de las aplicaciones la libreria
-`actionlib` hace el trabajo
+Si queremos podemos publicar y subscribirnos directamente a un server que
+publica un `action` ya que podemos usar los mensajes autogenerados de los types
+de `actions` Esto es ya que los `actions` son un protocolo de alto nivel
+construidos en base a los `messages` de ROS, pero para la mayoria de las
+aplicaciones la libreria `actionlib` hace el trabajo
 
 
 ### Usando un `action`
 
-La manera mas facil de usar un `action` es via la clase `SimpleActionClient` de el
-package `actionlib`, por ejemplo:
+La manera mas facil de usar un `action` es via la clase `SimpleActionClient` de
+el package `actionlib`, por ejemplo:
 
 ```python
 #! /usr/bin/env python
@@ -218,13 +223,14 @@ print('Time elapsed: %f'%(client.get_result().time_elapsed.to_sec()))
 
 Como vimos los `actions` son parecidos a los `services` solo con un poco mas de
 configuraciones y puesta a punto. Pero todavia no hemos utilizado la parte mas
-importante de ellos que es su funcion asincronica que es lo que los hace distintos
+importante de ellos que es su funcion asincronica que es lo que los hace
+distintos
 
 Vamos a comenzar en el server haciendo algunos cambios a lo que hicimos hasta
 ahora para demostrar como abortar un objetivo, como manejar un solicitud de
 preferencia y como proveer retroalimentacion mientras estamos persiguiendo un
-objetivo. En el siguiente ejemplo vemos algunas mejoras de lo que teniamos hasta
-ahora.
+objetivo. En el siguiente ejemplo vemos algunas mejoras de lo que teniamos
+hasta ahora.
 
 ```python
 #! /usr/bin/env python
@@ -271,29 +277,31 @@ ropy.spin()
 ```
 
 Veamos los cambios que introducimos. Como ahora utilizamos retroalimentacion
-entonces importamos ese mensaje `timerFeedback` a la lista de mensajes que importamos
-Ademas agregamos una variable que cuenta la cantidad de veces que publicamos una
-retroalimentacion: `update_count`. Luego agregamos un chequeo de error, no queremos
-usar este timer con periodos largos de espera, por ello chequeamos que el tiempo
-de respueta sea menor que 60 segundos y si sucede eso abortamos el objetivo llamando
-al metodo `set_aborted()`, la cual envia un mensaje al cliente que el objetivo fue
-cancelado y tambien se agrega un mensaje para que sea una salida de la consola
-y que sepamos que fue lo que paso, este string es opcional pero no cuesta nada
-ponerlo. Luego si pasamos ese chequeo en lugar de hacer un sleep de todo el tiempo
-que tenemos que esperar lo hacemos en partes, esto nos permite hacer cosas mientras
-esperamos llegar al objetivo, como chequear por preemption y proveer una retroalimentacion
-Luego en el loop, primero chequeamos por preemption preguntando con el metodo
-`is_preempt_requested()` si es `True` el cliente ha requerido que paremos de perseguir
-el objetivo (esto puede suceder si un segundo cliente nos envia un nuevo objetivo)
-Si pasa eso y como un caso parecido cuando hicimos el aborto, rellenamos un resultado
-y proveemos un string de status. Luego enviamos una retroalimentacion que corresponde
-al type que creamos en el archivo `.action`. Lo rellenamos entonces en terminos de
-`time_elapsed` y `time_remaining` y entonces publicamos la retroalimentacion con
-el metodo `publish_feedback()` que se lo envia al cliente, tambien incrementamos
-`update_count` para reflejar el hecho de que hemos enviado otra actualizacion, luego
-una vez que hemos dejado el loop con el `while` quiere decir que hemos pasado el
-tiempo requerido, entonces es tiempo de notificar al cliente esto que es muy similar
-al ejemplo anterior
+entonces importamos ese mensaje `timerFeedback` a la lista de mensajes que
+importamos Ademas agregamos una variable que cuenta la cantidad de veces que
+publicamos una retroalimentacion: `update_count`. Luego agregamos un chequeo de
+error, no queremos usar este timer con periodos largos de espera, por ello
+chequeamos que el tiempo de respueta sea menor que 60 segundos y si sucede eso
+abortamos el objetivo llamando al metodo `set_aborted()`, la cual envia un
+mensaje al cliente que el objetivo fue cancelado y tambien se agrega un mensaje
+para que sea una salida de la consola y que sepamos que fue lo que paso, este
+string es opcional pero no cuesta nada ponerlo. Luego si pasamos ese chequeo en
+lugar de hacer un sleep de todo el tiempo que tenemos que esperar lo hacemos en
+partes, esto nos permite hacer cosas mientras esperamos llegar al objetivo,
+como chequear por preemption y proveer una retroalimentacion Luego en el loop,
+primero chequeamos por preemption preguntando con el metodo
+`is_preempt_requested()` si es `True` el cliente ha requerido que paremos de
+perseguir el objetivo (esto puede suceder si un segundo cliente nos envia un
+nuevo objetivo) Si pasa eso y como un caso parecido cuando hicimos el aborto,
+rellenamos un resultado y proveemos un string de status. Luego enviamos una
+retroalimentacion que corresponde al type que creamos en el archivo `.action`.
+Lo rellenamos entonces en terminos de `time_elapsed` y `time_remaining` y
+entonces publicamos la retroalimentacion con el metodo `publish_feedback()` que
+se lo envia al cliente, tambien incrementamos `update_count` para reflejar el
+hecho de que hemos enviado otra actualizacion, luego una vez que hemos dejado
+el loop con el `while` quiere decir que hemos pasado el tiempo requerido,
+entonces es tiempo de notificar al cliente esto que es muy similar al ejemplo
+anterior
 
 
 ### Usando el server mas sofisticado
@@ -341,8 +349,8 @@ las cosas minimas, tambien vamos a testear los codigos que creemos
 
 ### Creando un workspace y el package
 
-Primero podemos crear un nuevo workspace para este robot y todos los packages que
-hagamos para el, en el directorio que creamos conveniente podemos hacer:
+Primero podemos crear un nuevo workspace para este robot y todos los packages
+que hagamos para el, en el directorio que creamos conveniente podemos hacer:
 
 ```text
 elsuizo@archlinux$ mkdir -p dir/wanderbot_ws/src
@@ -350,8 +358,9 @@ elsuizo@archlinux$ cd wanderbot_ws/src
 elsuizo@archlinux$ catkin_init_workspace
 ```
 
-Y con eso hemos creado un nuevo workspace que lo vamos a utilizar solo para cosas
-de este robot, luego podemos comenzar creando el primer package en el con el comando
+Y con eso hemos creado un nuevo workspace que lo vamos a utilizar solo para
+cosas de este robot, luego podemos comenzar creando el primer package en el con
+el comando
 
 ```text
 elsuizo@archilux$ cd wanderbot_ws/src
@@ -450,17 +459,18 @@ cuando detecte un obstaculo mientras esta andando haga alguna accion
 
 ## Cap8: Teleopt Bot
 
-Se comienza haciendo que el robot sea manejado por un operador mediante el teclado
-ya existe un package para esto pero en el libro lo hacen desde cero con otro
-package. Lo que tenemos que tener en cuenta es solo el msg `Twist` para setear
-la velocidad lineal(adelante/atras) o la velocidad angular alrededor del eje z
-que se conoce como velocidad *yay* y simplemente mide la velocidad a la que el
-robot esta girando alrededor del eje z. Es importante notar que estas velocidades
-son parte de un calculo mas "low level" que tiene en cuenta la geometria del robot
-y son calculadas o por ROS cuando publica el mensaje en forma de `Twist` o por
-en caso de que estemos usando un robot real un micro en el robot(que publicara
-en forma de `Twist` tambien). Desde la perspectiva del telecomando solo nos interesa
-la forma de mas alto nivel o sea "adelante", "atras", "girar derecha" y asi...
+Se comienza haciendo que el robot sea manejado por un operador mediante el
+teclado ya existe un package para esto pero en el libro lo hacen desde cero con
+otro package. Lo que tenemos que tener en cuenta es solo el msg `Twist` para
+setear la velocidad lineal(adelante/atras) o la velocidad angular alrededor del
+eje z que se conoce como velocidad *yay* y simplemente mide la velocidad a la
+que el robot esta girando alrededor del eje z. Es importante notar que estas
+velocidades son parte de un calculo mas "low level" que tiene en cuenta la
+geometria del robot y son calculadas o por ROS cuando publica el mensaje en
+forma de `Twist` o por en caso de que estemos usando un robot real un micro en
+el robot(que publicara en forma de `Twist` tambien). Desde la perspectiva del
+telecomando solo nos interesa la forma de mas alto nivel o sea "adelante",
+"atras", "girar derecha" y asi...
 
 ### Patron de desarrollo
 
@@ -468,13 +478,13 @@ En el libro se hace incapie que es mejor hacer pequenios nodos primero para
 probar de a una las caracteristicas que queremos hacer, ya que se hacen mas
 faciles para debugear. En el caso especifico de un telecomando vamos a hacer
 primero dos programas: uno para detectar las teclas que son presionadas y asi
-ser convertidas en acciones de ROS y otro que escucha esos `msg` de ROS y publica
-como salida `msg` del type `Twist`
+ser convertidas en acciones de ROS y otro que escucha esos `msg` de ROS y
+publica como salida `msg` del type `Twist`
 
 ### Driver para el teclado
 
-Primero necesitamos crear el driver que lea el teclado y que publique estos eventos
-como `msg` de `std_msgs/String`
+Primero necesitamos crear el driver que lea el teclado y que publique estos
+eventos como `msg` de `std_msgs/String`
 
 ```python
 #!/usr/bin/env python
@@ -499,21 +509,22 @@ if __name__ == '__main__':
 
 Como vemos este node utiliza la libreria `termios` para capturar las teclas que
 hemos presionado, lo que requiere que sepamos como las consolas de sistemas
-operativos del estilo Unix funcionan. Tipicamente las consolas generan un buffer
-de una linea entera de texto, solo enviando al programa que lo esta leyendo cuando
-presionamos enter. En nuestro caso lo que queremos es recibir las teclas que hemos
-recibido como una entrada estandar ni bien las hemos presionado, entonces para
-alterar este comportamiento debemos setear los atributos:
+operativos del estilo Unix funcionan. Tipicamente las consolas generan un
+buffer de una linea entera de texto, solo enviando al programa que lo esta
+leyendo cuando presionamos enter. En nuestro caso lo que queremos es recibir
+las teclas que hemos recibido como una entrada estandar ni bien las hemos
+presionado, entonces para alterar este comportamiento debemos setear los
+atributos:
 
 ```python
 old_attr = termios.tcgetattr(sys.stdin)
 tty.setcbreak(sys.stdin.fileno())
 ```
 
-Con eso podemos "escuchar" continuamente el stream del `stdin` para ver si algun
-caracter esta listo. Como no queremos que sea bloqueante llamamos a la funcion
-`select()` con un parametro de timeout zero lo que hace que retorne inmediatamente
-una vez que se ha presionado alguna tecla. Para probar si este node esta funcionando
-correctamente necesitamos tres consolas abiertas. En la primera corriendo `roscore`
-en la segunda corriendo `rostopic echo /keys` y el la tercera terminal corremos
-el script de python anterior
+Con eso podemos "escuchar" continuamente el stream del `stdin` para ver si
+algun caracter esta listo. Como no queremos que sea bloqueante llamamos a la
+funcion `select()` con un parametro de timeout zero lo que hace que retorne
+inmediatamente una vez que se ha presionado alguna tecla. Para probar si este
+node esta funcionando correctamente necesitamos tres consolas abiertas. En la
+primera corriendo `roscore` en la segunda corriendo `rostopic echo /keys` y el
+la tercera terminal corremos el script de python anterior

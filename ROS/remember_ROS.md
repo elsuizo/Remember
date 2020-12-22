@@ -45,7 +45,7 @@ los workspaces que tenemos miramos la variable `ROS_PACKAGE_PATH` haciendo `echo
 
 ## ROS making packages
 
- - `catking` es el sistema para manejar packages
+ - `catkin` es el sistema para manejar packages
  - Dicen que es mejor hacer `catkin build` en lugar de `catking_make`
  - El workspace de catking contiene los siguientes espacios: `src`, `build` y
    `devel`
